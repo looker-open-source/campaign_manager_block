@@ -43,14 +43,14 @@ explore: impression {
     relationship: many_to_one
   }
 
-  join: match_table_creatives_8667 {
+  join: match_table_creatives {
     view_label: "Creatives"
-    sql_on: ${impression.rendering_id} = ${match_table_creatives_8667.rendering_id} ;;
+    sql_on: ${impression.rendering_id} = ${match_table_creatives.rendering_id} ;;
     relationship: many_to_one
   }
-  join: match_table_operating_systems_8667 {
+  join: match_table_operating_systems {
     view_label: "Operating System"
-    sql_on: ${impression.operating_system_id_key} = ${match_table_operating_systems_8667.operating_system_id_key} ;;
+    sql_on: ${impression.operating_system_id_key} = ${match_table_operating_systems.operating_system_id_key} ;;
     relationship: many_to_one
   }
 

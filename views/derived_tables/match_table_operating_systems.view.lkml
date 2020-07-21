@@ -1,5 +1,4 @@
-view: match_table_operating_systems_8667 {
-#   sql_table_name: `db-platform-sol.Comcast8667.match_table_operating_systems_8667` ;;
+view: match_table_operating_systems {
 # De-Duping
   derived_table: {
     sql: SELECT

@@ -23,7 +23,7 @@ view: impression_funnel {
                 , max(event_time) as latest_impression
                 , count(distinct site_id_dcm) as site_count
                 , count(*) as count_impressions
-            from ${impression.SQL_TABLE_NAME} --`ekoblov-test.dcm1684.impression_1684`
+            from ${impression.SQL_TABLE_NAME}
             where user_id <> '' and user_id is not null
 
             and _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
@@ -39,7 +39,7 @@ view: impression_funnel {
                 , min(event_time) as first_click
                 , max(event_time) as latest_click
                 , count(*) as count_clicks
-            from ${click.SQL_TABLE_NAME} -- `ekoblov-test.dcm1684.click_1684`
+            from ${click.SQL_TABLE_NAME}
             where user_id <> '' and user_id is not null
 
             and _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
@@ -64,7 +64,7 @@ view: impression_funnel {
                 , sum(case when event_sub_type = 'POSTVIEW' THEN 1 ELSE 0 END) as count_postview_conversions
                 , sum(case when event_sub_type = 'POSTCLICK' THEN 1 ELSE 0 END) as count_postclick_conversions
                 , sum(total_revenue) as revenue
-                from ${activity.SQL_TABLE_NAME} -- `ekoblov-test.dcm1684.activity_1684`
+                from ${activity.SQL_TABLE_NAME}
                 where user_id <> '' and user_id is not null
                 and event_type = 'CONVERSION'
 
