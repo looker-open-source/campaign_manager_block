@@ -10,7 +10,7 @@ view: user_impression_facts {
   COUNT(DISTINCT (concat(impression.Ad_ID, impression.Advertiser_ID, impression.User_ID, cast(impression.Event_Time as string), impression.Event_Type, impression.Rendering_ID)) ) AS count_impressions
 FROM `db-platform-sol.Comcast8667.p_impression_8667` AS impression
 LEFT JOIN (select * from `db-platform-sol.Comcast8667.match_table_campaigns_8667` where _LATEST_DATE = _DATA_DATE)  AS match_table_campaigns ON impression.Campaign_ID = match_table_campaigns.Campaign_ID
-WHERE impression._PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -7 DAY))
+WHERE impression._PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
 GROUP BY 1,2
     ;;
 
