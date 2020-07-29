@@ -77,43 +77,6 @@ view: impression {
       icon_url: "https://seeklogo.com/images/G/google-campaign-manager-logo-03026740FA-seeklogo.com.png"
       url: "https://www.google.com/dfa/trafficking/#/accounts/@{cm_network_id}/campaigns/{{value}}/explorer?"
     }
-
-    # action: {
-    #   label: "Pause Campaign"
-    #   url: "https://##/"
-    #   icon_url: "https://cdn3.iconfinder.com/data/icons/shadcon/512/pause-512.png"
-    # }
-    # action: {
-    #   label: "Update Campaign Bid"
-    #   icon_url: "https://cdn1.iconfinder.com/data/icons/social-messaging-ui-color/254000/52-512.png"
-    #   url: "https://##/"
-    #   form_param: {
-    #     name: "Campaign Id"
-    #     type: string
-    #     default: "{{value}}"
-    #   }
-    #   form_param: {
-    #     name: "Campaign Name"
-    #     type: string
-    #     default: "{{match_table_campaigns.campaign_name._value}}"
-    #   }
-    #   form_param: {
-    #     name: "Billing Code"
-    #     type: string
-    #     default: "{{match_table_campaigns.billing_invoice_code._value}}"
-    #   }
-    #   form_param: {
-    #     name: "Start Date"
-    #     type: string
-    #     default: "{{match_table_campaigns.campaign_start_date._value}}"
-    #   }
-    #   form_param: {
-    #     name: "End Date"
-    #     type: string
-    #     default: "{{match_table_campaigns.campaign_end_date._value}}"
-    #   }
-    # }
-
   }
 
   #match_table_cities
@@ -132,6 +95,141 @@ view: impression {
     type: number
     sql: ${TABLE}.Creative_Version ;;
   }
+
+  dimension: designated_market_area_dma_id {
+    type: string
+    sql: ${TABLE}.Designated_Market_Area_DMA_ID ;;
+  }
+
+  dimension: event_sub_type {
+    type: string
+    sql: ${TABLE}.Event_Sub_Type ;;
+  }
+
+  dimension_group: event {
+    type: time
+    timeframes: [raw, date, week, day_of_week, month, month_name, quarter, year]
+    datatype: epoch
+    sql: CAST(${TABLE}.Event_Time/1000000 as INT64) ;;
+  }
+
+  dimension: event_type {
+    type: string
+    sql: ${TABLE}.Event_Type ;;
+  }
+
+  dimension: operating_system_id {
+    type: string
+    sql: ${TABLE}.Operating_System_ID ;;
+  }
+
+  dimension: operating_system_id_key {
+    type: number
+    sql: IF(CAST(${operating_system_id} AS INT64) > 22,
+       CAST(${operating_system_id} AS INT64),
+       POWER(2,CAST(${operating_system_id} AS INT64))) ;;
+
+  }
+
+  dimension: partner1_id {
+    type: string
+    sql: ${TABLE}.Partner1_ID ;;
+  }
+
+  dimension: partner2_id {
+    type: string
+    sql: ${TABLE}.Partner2_ID ;;
+  }
+
+  dimension: placement_id {
+    type: string
+    sql: ${TABLE}.Placement_ID ;;
+  }
+
+  dimension: rendering_id {
+    type: string
+    sql: ${TABLE}.Rendering_ID ;;
+  }
+
+  dimension: site_id_dcm {
+    type: string
+    sql: ${TABLE}.Site_ID_DCM ;;
+  }
+
+  dimension: state_region {
+    map_layer_name: us_states
+    sql: ${TABLE}.State_Region ;;
+    drill_fields: [zip_postal_code]
+  }
+
+  dimension: u_value {
+    type: string
+    sql: ${TABLE}.U_Value ;;
+  }
+
+  dimension: user_id {
+    type: string
+    sql: ${TABLE}.User_ID ;;
+  }
+
+  dimension: zip_postal_code {
+    type: zipcode
+    sql: ${TABLE}.ZIP_Postal_Code ;;
+    map_layer_name: us_zipcode_tabulation_areas
+  }
+
+
+  ### MEASURES
+
+  measure: count {
+    type: count
+    drill_fields: [campaign_id, site_id_dcm, impressions_per_user]
+  }
+
+  measure: distinct_users {
+    label: "Reach Count"
+    type: count_distinct
+    sql: ${user_id} ;;
+    drill_fields: [campaign_id, site_id_dcm, impressions_per_user]
+  }
+
+  measure: reach_percentage {
+    type: number
+    sql: 1.0*${distinct_users}/NULLIF(${count},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: average_frequency {
+    type: number
+    sql: 1.0*${count}/${distinct_users} ;;
+    value_format_name: decimal_2
+  }
+
+  measure: campaign_count {
+    type: count_distinct
+    sql: ${campaign_id} ;;
+    drill_fields: [campaign_id, match_table_campaigns.campaign_name, count, distinct_users, impressions_per_user]
+  }
+
+  measure: impressions_per_user {
+    type: number
+    sql: ${count_impressions}/NULLIF(${distinct_users},0) ;;
+    value_format_name: decimal_1
+    drill_fields: [campaign_id, site_id_dcm]
+  }
+
+  measure: ad_count {
+    type: count_distinct
+    sql: ${ad_id} ;;
+    drill_fields: [ad_id, match_table_ads.ad_name, match_table_ads.ad_type, count, distinct_users]
+  }
+
+
+
+
+  ######################################
+  ## DV360 METRICS ---> Start
+  ######################################
 
   dimension: dbm_ad_position {
     type: number
@@ -540,128 +638,9 @@ view: impression {
     sql: ${TABLE}.DBM_ZIP_Postal_Code ;;
   }
 
-  dimension: designated_market_area_dma_id {
-    type: string
-    sql: ${TABLE}.Designated_Market_Area_DMA_ID ;;
-  }
+  ######################################
+  ## End <--- DV360 METRICS
+  ######################################
 
-  dimension: event_sub_type {
-    type: string
-    sql: ${TABLE}.Event_Sub_Type ;;
-  }
 
-  dimension_group: event {
-    type: time
-    timeframes: [raw, date, week, day_of_week, month, month_name, quarter, year]
-    datatype: epoch
-    sql: CAST(${TABLE}.Event_Time/1000000 as INT64) ;;
-  }
-
-  dimension: event_type {
-    type: string
-    sql: ${TABLE}.Event_Type ;;
-  }
-
-  dimension: operating_system_id {
-    type: string
-    sql: ${TABLE}.Operating_System_ID ;;
-  }
-
-  dimension: operating_system_id_key {
-    type: number
-    sql: IF(CAST(${operating_system_id} AS INT64) > 22,
-       CAST(${operating_system_id} AS INT64),
-       POWER(2,CAST(${operating_system_id} AS INT64))) ;;
-
-  }
-
-  dimension: partner1_id {
-    type: string
-    sql: ${TABLE}.Partner1_ID ;;
-  }
-
-  dimension: partner2_id {
-    type: string
-    sql: ${TABLE}.Partner2_ID ;;
-  }
-
-  dimension: placement_id {
-    type: string
-    sql: ${TABLE}.Placement_ID ;;
-  }
-
-  dimension: rendering_id {
-    type: string
-    sql: ${TABLE}.Rendering_ID ;;
-  }
-
-  dimension: site_id_dcm {
-    type: string
-    sql: ${TABLE}.Site_ID_DCM ;;
-  }
-
-  dimension: state_region {
-    map_layer_name: us_states
-    sql: ${TABLE}.State_Region ;;
-    drill_fields: [zip_postal_code]
-  }
-
-  dimension: u_value {
-    type: string
-    sql: ${TABLE}.U_Value ;;
-  }
-
-  dimension: user_id {
-    type: string
-    sql: ${TABLE}.User_ID ;;
-  }
-
-  dimension: zip_postal_code {
-    type: zipcode
-    sql: ${TABLE}.ZIP_Postal_Code ;;
-    map_layer_name: us_zipcode_tabulation_areas
-  }
-
-  measure: count {
-    type: count
-    drill_fields: [campaign_id, site_id_dcm, impressions_per_user]
-  }
-
-  measure: distinct_users {
-    label: "Reach Count"
-    type: count_distinct
-    sql: ${user_id} ;;
-    drill_fields: [campaign_id, site_id_dcm, impressions_per_user]
-  }
-
-  measure: reach_percentage {
-    type: number
-    sql: 1.0*${distinct_users}/NULLIF(${count},0) ;;
-    value_format_name: percent_2
-  }
-
-  measure: average_frequency {
-    type: number
-    sql: 1.0*${count}/${distinct_users} ;;
-    value_format_name: decimal_2
-  }
-
-  measure: campaign_count {
-    type: count_distinct
-    sql: ${campaign_id} ;;
-    drill_fields: [campaign_id, match_table_campaigns.campaign_name, count, distinct_users, impressions_per_user]
-  }
-
-  measure: impressions_per_user {
-    type: number
-    sql: ${count_impressions}/NULLIF(${distinct_users},0) ;;
-    value_format_name: decimal_1
-    drill_fields: [campaign_id, site_id_dcm]
-  }
-
-  measure: ad_count {
-    type: count_distinct
-    sql: ${ad_id} ;;
-    drill_fields: [ad_id, match_table_ads.ad_name, match_table_ads.ad_type, count, distinct_users]
-  }
 }
