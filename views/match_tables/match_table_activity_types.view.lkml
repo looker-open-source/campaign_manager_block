@@ -1,13 +1,5 @@
 view: match_table_activity_types {
-  sql_table_name: (SELECT * FROM TABLE_QUERY(
-    --[ekoblov-test:dcm1684],
-    [db-platform-sol:Comcast8667],
-    'table_id= (Select MAX(table_id)
-                          FROM [db-platform-sol:Comcast8667.__TABLES__]
-                          where table_id contains "match_table_activity_types_8667_")'
-    )
-    )
-     ;;
+  sql_table_name: (select * from `db-platform-sol.Comcast8667.match_table_activity_types_8667` where _LATEST_DATE = _DATA_DATE) ;;
 
     dimension: activity_group {
       type: string
