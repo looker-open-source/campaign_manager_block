@@ -7,6 +7,12 @@ include: "/dashboards/*.dashboard"
 
 persist_for: "24 hours"
 
+datagroup: new_day {
+  sql_trigger: SELECT max(date(_PARTITIONTIME)) from ${impression.SQL_TABLE_NAME}
+    where _PARTITIONTIME >= TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY)) ;;
+}
+
+
 explore: impression {
   label: "(1) Impressions"
   view_label: "Impressions"
@@ -88,6 +94,16 @@ explore: impression_funnel {
     view_label: "Users"
     sql_on: ${impression_funnel.campaign_id} = ${user_campaign_facts.campaign_id} AND ${impression_funnel.user_id} = ${user_campaign_facts.user_id} ;;
     relationship: many_to_one
+  }
+}
+
+explore: impression_funnel_dv360 {
+  label: "(2.5) Impression Funnel DV360"
+  description: "Use this funnel explore for a more granular view at cost and impression metrics for DV360 campaigns"
+  join: dynamic_io_rank {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${impression_funnel_dv360.dbm_insertion_order_id} = ${dynamic_io_rank.dbm_insertion_order_id} ;;
   }
 }
 

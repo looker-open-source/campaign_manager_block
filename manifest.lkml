@@ -5,3 +5,7 @@ project_name: "campaign_manager_block"
 constant: cm_network_id {
   value: ""
 }
+
+constant: dv360_partner_id {
+  value: ""
+}
