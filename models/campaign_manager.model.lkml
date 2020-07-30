@@ -12,6 +12,11 @@ datagroup: new_day {
     where _PARTITIONTIME >= TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY)) ;;
 }
 
+map_layer: dma {
+  file: "/map_layers/dma.topojson"
+  property_key: "dma"
+}
+
 
 explore: impression {
   label: "(1) Impressions"

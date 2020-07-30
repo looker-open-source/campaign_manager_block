@@ -1,7 +1,7 @@
 view: impression_pdt {
   derived_table: {
     datagroup_trigger: new_day
-    sql: select _partitiontime as impression_time
+    sql: select TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as impression_time
             , campaign_id
 
                 , dbm_advertiser_id
@@ -12,13 +12,16 @@ view: impression_pdt {
                 , dbm_auction_id
                 , dbm_attributed_inventory_source_is_public
                 --, dbm_matching_targeted_segments
-                , IFNULL(dbm_designated_market_area_dma_id,'No DMA') as dbm_designated_market_area_dma_id
-                , IFNULL(dbm_zip_postal_code,'No ZIP') as dbm_zip_postal_code
-                , IFNULL(dbm_state_region_id, 'No State') as dbm_state_region_id
+                , IFNULL(dbm_designated_market_area_dma_id,'Unknown') as dbm_designated_market_area_dma_id
+                , IFNULL(dbm_zip_postal_code,'Unknown') as dbm_zip_postal_code
+                , IFNULL(dbm_state_region_id, 'Unknown') as dbm_state_region_id
+                , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
+                , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
+                , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
                 , sum(dbm_revenue_usd) as total_revenue
                 , count(*) as total_impressions
                 -- sum(dbm_total_media_cost_usd) as total_media_cost
-                 -- TO DO: confirm we can use active view measureable impressions
+                -- TO DO: confirm we can use active view measureable impressions
                 ,sum(active_view_viewable_impressions) as active_view_viewable_impressions
                 ,sum(active_view_measurable_impressions) as active_view_measurable_impressions
                 ,sum(active_view_eligible_impressions) as active_view_eligible_impression
@@ -26,8 +29,8 @@ view: impression_pdt {
             where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
             and dbm_advertiser_id is not null
 
-            group by 1,2,3,4,5,6,7,8,9,10,11,12
- ;;
+            group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+;;
   }
 }
 
@@ -44,17 +47,20 @@ view: click_pdt {
                       , dbm_exchange_id
                       , dbm_auction_id
                       , dbm_attributed_inventory_source_is_public
-                     -- , dbm_matching_targeted_segments
-                      , IFNULL(dbm_designated_market_area_dma_id,'No DMA') as dbm_designated_market_area_dma_id
-                      , IFNULL(dbm_zip_postal_code,'No ZIP') as dbm_zip_postal_code
-                      , IFNULL(dbm_state_region_id, 'No State') as dbm_state_region_id
+                    -- , dbm_matching_targeted_segments
+                      , IFNULL(dbm_designated_market_area_dma_id,'Unknown') as dbm_designated_market_area_dma_id
+                      , IFNULL(dbm_zip_postal_code,'Unknown') as dbm_zip_postal_code
+                      , IFNULL(dbm_state_region_id, 'Unknown') as dbm_state_region_id
+                      , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
+                      , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
+                      , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
                       , count(*) as count_clicks
                   from ${click.SQL_TABLE_NAME}
                   where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
                   and dbm_advertiser_id is not null
 
-                  group by 1,2,3,4,5,6,7,8,9,10,11
-       ;;
+                  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+      ;;
   }
 }
 
@@ -72,9 +78,12 @@ view: activity_pdt {
                       , dbm_auction_id
                       , dbm_attributed_inventory_source_is_public
                       --, dbm_matching_targeted_segments
-                      , IFNULL(dbm_designated_market_area_dma_id,'No DMA') as dbm_designated_market_area_dma_id
-                      , IFNULL(dbm_zip_postal_code,'No ZIP') as dbm_zip_postal_code
-                      , IFNULL(dbm_state_region_id, 'No State') as dbm_state_region_id
+                      , IFNULL(dbm_designated_market_area_dma_id,'Unknown') as dbm_designated_market_area_dma_id
+                      , IFNULL(dbm_zip_postal_code,'Unknown') as dbm_zip_postal_code
+                      , IFNULL(dbm_state_region_id, 'Unknown') as dbm_state_region_id
+                      , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
+                      , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
+                      , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
                       , count(*) as count_conversions
                       from ${activity.SQL_TABLE_NAME}
 
@@ -82,8 +91,8 @@ view: activity_pdt {
                     and _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
                     and dbm_advertiser_id is not null
 
-                      group by 1,2,3,4,5,6,7,8,9,10,11
-       ;;
+                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+      ;;
   }
 }
 
@@ -107,10 +116,13 @@ view: impression_funnel_dv360 {
           and line_item_impression_metrics.dbm_exchange_id = line_item_click_metrics.dbm_exchange_id
           and line_item_impression_metrics.dbm_auction_id = line_item_click_metrics.dbm_auction_id
           and line_item_impression_metrics.dbm_attributed_inventory_source_is_public = line_item_click_metrics.dbm_attributed_inventory_source_is_public
-         --and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_click_metrics.dbm_matching_targeted_segments
+        --and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_click_metrics.dbm_matching_targeted_segments
           and line_item_impression_metrics.dbm_designated_market_area_dma_id = line_item_click_metrics.dbm_designated_market_area_dma_id
           and line_item_impression_metrics.dbm_zip_postal_code = line_item_click_metrics.dbm_zip_postal_code
           and line_item_impression_metrics.dbm_state_region_id = line_item_click_metrics.dbm_state_region_id
+          and line_item_impression_metrics.DBM_Matching_Targeted_Segments = line_item_click_metrics.DBM_Matching_Targeted_Segments
+          and line_item_impression_metrics.DBM_Device_Type = line_item_click_metrics.DBM_Device_Type
+          and line_item_impression_metrics.DBM_Browser_Platform_ID = line_item_click_metrics.DBM_Browser_Platform_ID
           left join ${activity_pdt.SQL_TABLE_NAME} line_item_activity_metrics
 
                       -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
@@ -122,11 +134,14 @@ view: impression_funnel_dv360 {
           and line_item_impression_metrics.dbm_exchange_id = line_item_activity_metrics.dbm_exchange_id
           and line_item_impression_metrics.dbm_auction_id = line_item_activity_metrics.dbm_auction_id
           and line_item_impression_metrics.dbm_attributed_inventory_source_is_public = line_item_activity_metrics.dbm_attributed_inventory_source_is_public
-         -- and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_activity_metrics.dbm_matching_targeted_segments
+        -- and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_activity_metrics.dbm_matching_targeted_segments
           and line_item_impression_metrics.dbm_designated_market_area_dma_id = line_item_activity_metrics.dbm_designated_market_area_dma_id
           and line_item_impression_metrics.dbm_zip_postal_code = line_item_activity_metrics.dbm_zip_postal_code
           and line_item_impression_metrics.dbm_state_region_id = line_item_activity_metrics.dbm_state_region_id
-       ;;
+          and line_item_impression_metrics.DBM_Matching_Targeted_Segments = line_item_activity_metrics.DBM_Matching_Targeted_Segments
+          and line_item_impression_metrics.DBM_Device_Type = line_item_activity_metrics.DBM_Device_Type
+          and line_item_impression_metrics.DBM_Browser_Platform_ID = line_item_activity_metrics.DBM_Browser_Platform_ID
+      ;;
   }
 
   measure: count {
@@ -136,12 +151,34 @@ view: impression_funnel_dv360 {
 
   dimension_group: impression {
     type: time
-    sql: ${TABLE}.impression_time ;;
+    sql:${TABLE}.impression_time ;;
   }
 
   dimension: dbm_advertiser_id {
     type: string
     sql: ${TABLE}.dbm_advertiser_id ;;
+  }
+
+  dimension: dbm_device_type {
+    type: number
+    sql: ${TABLE}.DBM_Device_Type ;;
+  }
+
+  dimension: DBM_Device_Type_Name {
+    type: string
+    sql: CASE
+          WHEN DBM_Device_Type=0 THEN "Computer"
+          WHEN DBM_Device_Type=1 THEN "Other"
+          WHEN DBM_Device_Type=2 THEN "Smartphone"
+          WHEN DBM_Device_Type=3 THEN "Tablet"
+          WHEN DBM_Device_Type=4 THEN "Smart TV"
+          ELSE 'Unknown'
+         END ;;
+  }
+
+  dimension: dbm_browser_platform_id {
+    type: string
+    sql: ${TABLE}.DBM_Browser_Platform_ID ;;
   }
 
   dimension: dbm_site_id {
@@ -212,13 +249,13 @@ view: impression_funnel_dv360 {
   dimension: active_view_eligible_impressions_d {
     type: number
     hidden: yes
-    sql: ${TABLE}.active_view_eligible_impressions ;;
+    sql: ${TABLE}.active_view_eligible_impression ;;
   }
 
   dimension: total_revenue {
     type: number
     hidden: yes
-    sql: ${TABLE}.total_revenue ;;
+    sql: ${TABLE}.total_revenue/1000000000 ;;
   }
 
   ### Impression measures

@@ -8,7 +8,7 @@ view: dynamic_io_rank {
       column: dynamic_measure { field: impression_funnel_dv360.dynamic_measure }
       derived_column: rank {
         sql: ROW_NUMBER() OVER(order by dynamic_measure
-                   {% if impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per Acquisition'" %} desc
+                  {% if impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per Acquisition'" %} desc
                     {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per Click'" %} desc
                       {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Click Through Rate'" %} asc
                       {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per 1000 Impressions'" %} desc
