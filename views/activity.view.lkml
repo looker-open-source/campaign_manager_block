@@ -108,12 +108,10 @@ view: activity {
     sql: ${TABLE}.Other_Data ;;
   }
 
-  ## slide32 - u-variables { u4 }
   dimension: product_purchased {
     type: string
     sql: TRIM(REGEXP_EXTRACT(${other_data}, r"u4=(.+?);")) ;;
   }
-
 
   dimension: partner1_id {
     type: string
@@ -170,7 +168,7 @@ view: activity {
 
   measure: count {
     type: count
-    drill_fields: []
+    drill_fields: [match_table_campaigns.campaign_name, count]
   }
 
   measure: distinct_users {

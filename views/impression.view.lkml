@@ -50,6 +50,11 @@ view: impression {
     view_label: "Advertisers"
     type: string
     sql: ${TABLE}.Advertiser_ID ;;
+    link: {
+      label: "View in Campaign Manager"
+      icon_url: "https://seeklogo.com/images/G/google-campaign-manager-logo-03026740FA-seeklogo.com.png"
+      url: "https://www.google.com/dfa/trafficking/#/accounts/@{cm_network_id}/advertisers/{{value}}/explorer?"
+    }
   }
 
   dimension: browser_platform_id {
@@ -183,14 +188,14 @@ view: impression {
 
   measure: count {
     type: count
-    drill_fields: [campaign_id, site_id_dcm, impressions_per_user]
+    drill_fields: [match_table_campaigns.campaign_name, site_id_dcm, impressions_per_user]
   }
 
   measure: distinct_users {
     label: "Reach Count"
     type: count_distinct
     sql: ${user_id} ;;
-    drill_fields: [campaign_id, site_id_dcm, impressions_per_user]
+    drill_fields: [match_table_campaigns.campaign_name, site_id_dcm, impressions_per_user]
   }
 
   measure: reach_percentage {
@@ -208,20 +213,20 @@ view: impression {
   measure: campaign_count {
     type: count_distinct
     sql: ${campaign_id} ;;
-    drill_fields: [campaign_id, match_table_campaigns.campaign_name, count, distinct_users, impressions_per_user]
+    drill_fields: [match_table_campaigns.campaign_name, count, distinct_users, impressions_per_user]
   }
 
   measure: impressions_per_user {
     type: number
     sql: ${count_impressions}/NULLIF(${distinct_users},0) ;;
     value_format_name: decimal_1
-    drill_fields: [campaign_id, site_id_dcm]
+    drill_fields: [match_table_campaigns.campaign_name, site_id_dcm]
   }
 
   measure: ad_count {
     type: count_distinct
     sql: ${ad_id} ;;
-    drill_fields: [ad_id, match_table_ads.ad_name, match_table_ads.ad_type, count, distinct_users]
+    drill_fields: [match_table_ads.ad_name, match_table_ads.ad_type, count, distinct_users]
   }
 
 

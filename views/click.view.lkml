@@ -129,7 +129,7 @@ view: click {
 
   measure: count {
     type: count
-    drill_fields: []
+    drill_fields: [match_table_campaigns.campaign_name, count]
   }
 
 
