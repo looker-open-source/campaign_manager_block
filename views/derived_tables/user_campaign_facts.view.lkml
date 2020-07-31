@@ -1,6 +1,6 @@
 view: user_campaign_facts {
   derived_table: {
-#     sql_trigger_value: SELECT COUNT(*) FROM ${impression_funnel.SQL_TABLE_NAME} ;;
+    datagroup_trigger: new_day
     sql: SELECT
         impression_funnel.user_id AS impression_funnel_user_id,
         impression_funnel.campaign_id AS impression_funnel_campaign_id,
