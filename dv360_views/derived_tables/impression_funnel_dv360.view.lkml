@@ -18,7 +18,7 @@ view: impression_pdt {
                 , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
                 , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
                 , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
-                , sum(dbm_revenue_usd) as total_revenue
+                , SUM(dbm_revenue_usd) as total_revenue
                 , count(*) as total_impressions
                 -- sum(dbm_total_media_cost_usd) as total_media_cost
                 -- TO DO: confirm we can use active view measureable impressions
@@ -218,37 +218,31 @@ view: impression_funnel_dv360 {
 
   dimension: count_conversions {
     type: number
-    hidden: yes
     sql: ${TABLE}.count_conversions ;;
   }
 
   dimension: count_clicks {
     type: number
-    hidden: yes
     sql: ${TABLE}.count_clicks ;;
   }
 
   dimension: count_impressions {
     type: number
-    hidden: yes
     sql: ${TABLE}.total_impressions ;;
   }
 
   dimension: active_view_viewable_impressions_d {
     type: number
-    hidden: yes
     sql: ${TABLE}.active_view_viewable_impressions ;;
   }
 
   dimension: active_view_measurable_impressions_d {
     type: number
-    hidden: yes
     sql: ${TABLE}.active_view_measurable_impressions ;;
   }
 
   dimension: active_view_eligible_impressions_d {
     type: number
-    hidden: yes
     sql: ${TABLE}.active_view_eligible_impression ;;
   }
 
@@ -402,7 +396,6 @@ view: impression_funnel_dv360 {
     drill_fields: []
   }
 
-
   measure: line_item_count_label {
     hidden: yes
     type: count_distinct
@@ -421,8 +414,6 @@ view: impression_funnel_dv360 {
     drill_fields: [dbm_insertion_order_id]
   }
 
-
-
   ## Cost Metrics
 
   measure: dbm_revenue {
@@ -432,12 +423,58 @@ view: impression_funnel_dv360 {
     sql: ${total_revenue} ;;
   }
 
+  ## CPA Performance
+
   measure: cpa {
     description: "Cost Per Acquisition"
     type:  number
     value_format_name: usd
     sql: 1.0 * ${dbm_revenue}/nullif(${total_conversions},0) ;;
   }
+
+  measure: cpa_without_campaign_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${campaign_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${campaign_facts.total_conversions} - ${total_conversions}),0) ;;
+  }
+
+  measure: cpa_without_io_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${io_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${io_facts.total_conversions} - ${total_conversions}),0) ;;
+  }
+
+  measure: cpa_without_line_item_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${line_item_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${line_item_facts.total_conversions} - ${total_conversions}),0) ;;
+  }
+
+  measure: contribution_to_campaign_cpa_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpa_without_campaign_level} - ${cpa}) / nullif(${cpa},0) ;;
+  }
+
+  measure: contribution_to_io_cpa_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpa_without_io_level} - ${cpa}) / nullif(${cpa},0) ;;
+  }
+
+  measure: contribution_to_line_item_cpa_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpa_without_line_item_level} - ${cpa}) / nullif(${cpa},0) ;;
+  }
+
+  ## CPC
 
   measure: cpc {
     description: "Cost Per Click"
@@ -446,6 +483,50 @@ view: impression_funnel_dv360 {
     sql: 1.0 * ${dbm_revenue}/nullif(${total_clicks},0) ;;
   }
 
+  measure: cpc_without_campaign_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${campaign_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${campaign_facts.total_clicks} - ${total_clicks}),0) ;;
+  }
+
+  measure: cpc_without_io_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${io_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${io_facts.total_clicks} - ${total_clicks}),0) ;;
+  }
+
+  measure: cpc_without_line_item_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${line_item_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${line_item_facts.total_clicks} - ${total_clicks}),0) ;;
+  }
+
+  measure: contribution_to_campaign_cpc_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpc_without_campaign_level} - ${cpc}) / nullif(${cpc},0) ;;
+  }
+
+  measure: contribution_to_io_cpc_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpc_without_io_level} - ${cpc}) / nullif(${cpc},0) ;;
+  }
+
+  measure: contribution_to_line_item_cpc_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpc_without_line_item_level} - ${cpc}) / nullif(${cpc},0) ;;
+  }
+
+  ## CPM
+
   measure: cpm {
     description: "Cost Per 1000 Impressions"
     type: number
@@ -453,14 +534,51 @@ view: impression_funnel_dv360 {
     sql:  1.0 * ${dbm_revenue}/nullif(${total_impressions},0)*1000;;
   }
 
+  measure: cpm_without_campaign_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${campaign_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${campaign_facts.total_impressions} - ${total_impressions}),0)*1000 ;;
+  }
 
+  measure: cpm_without_io_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${io_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${io_facts.total_impressions} - ${total_impressions}),0)*1000 ;;
+  }
 
-#   measure: cpa_without {
-#     type: number
-#     sql: 1.0 * (${campaign_facts.total_revenue} - ${dbm_revenue})/(${campaign_facts.total_conversions} - ${activity.count_activities})  ;;
-#   }
+  measure: cpm_without_line_item_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${line_item_facts.dbm_revenue} - ${dbm_revenue}) / nullif((${line_item_facts.total_impressions} - ${total_impressions}),0)*1000 ;;
+  }
+
+  measure: contribution_to_campaign_cpm_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpm_without_campaign_level} - ${cpm}) / nullif(${cpm},0) ;;
+  }
+
+  measure: contribution_to_io_cpm_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpm_without_io_level} - ${cpm}) / nullif(${cpm},0) ;;
+  }
+
+  measure: contribution_to_line_item_cpm_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cpm_without_line_item_level} - ${cpm}) / nullif(${cpm},0) ;;
+  }
 
   ### Custom Rate Metrics ###
+
+  ## Click Through Rate
 
   measure: ctr {
     description: "Click Through Rate"
@@ -469,11 +587,97 @@ view: impression_funnel_dv360 {
     sql: 1.0 * ${total_clicks}/nullif(${total_impressions},0) ;;
   }
 
+  measure: ctr_without_campaign_level {
+    hidden: yes
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${campaign_facts.total_clicks} - ${total_clicks}) / nullif((${campaign_facts.total_impressions} - ${total_impressions}),0) ;;
+  }
+
+  measure: ctr_without_io_level {
+    hidden: yes
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${io_facts.total_clicks} - ${total_clicks}) / nullif((${io_facts.total_impressions} - ${total_impressions}),0) ;;
+  }
+
+  measure: ctr_without_line_item_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${line_item_facts.total_clicks} - ${total_clicks}) / nullif((${line_item_facts.total_impressions} - ${total_impressions}),0) ;;
+  }
+
+  measure: contribution_to_campaign_ctr_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${ctr_without_campaign_level} - ${ctr}) / nullif(${ctr},0) ;;
+  }
+
+  measure: contribution_to_io_ctr_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${ctr_without_io_level} - ${ctr}) / nullif(${ctr},0) ;;
+  }
+
+  measure: contribution_to_line_item_ctr_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${ctr_without_line_item_level} - ${ctr}) / nullif(${ctr},0) ;;
+  }
+
+  ## Conversion Rate
+
   measure: cr {
     description: "Conversion Rate"
     type: number
     value_format_name: percent_2
     sql: 1.0 * ${total_conversions}/nullif(${total_impressions},0) ;;
+  }
+
+  measure: cr_without_campaign_level {
+    hidden: yes
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${campaign_facts.total_conversions} - ${total_conversions}) / nullif((${campaign_facts.total_impressions} - ${total_impressions}),0) ;;
+  }
+
+  measure: cr_without_io_level {
+    hidden: yes
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${io_facts.total_conversions} - ${total_conversions}) / nullif((${io_facts.total_impressions} - ${total_impressions}),0) ;;
+  }
+
+  measure: cr_without_line_item_level {
+    hidden: yes
+    type: number
+    value_format_name: usd
+    sql: 1.0 * (${line_item_facts.total_conversions} - ${total_conversions}) / nullif((${line_item_facts.total_impressions} - ${total_impressions}),0) ;;
+  }
+
+  measure: contribution_to_campaign_cr_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${ctr_without_campaign_level} - ${cr}) / nullif(${cr},0) ;;
+  }
+
+  measure: contribution_to_io_cr_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cr_without_io_level} - ${cr}) / nullif(${cr},0) ;;
+  }
+
+  measure: contribution_to_line_item_cr_performance {
+    group_label: "Contribution to Performance"
+    type: number
+    value_format_name: percent_2
+    sql: 1.0 * (${cr_without_line_item_level} - ${cr}) / nullif(${cr},0) ;;
   }
 
   measure: percent_impressions_viewed {
