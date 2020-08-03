@@ -57,7 +57,7 @@ view: campaign_facts {
   derived_table: {
     explore_source: impression_funnel_dv360 {
       column: campaign_id {}
-      column: total_revenue {}
+      column: dbm_revenue {}
       column: total_impressions {}
       column: total_clicks {}
       column: total_conversions {}
@@ -65,19 +65,25 @@ view: campaign_facts {
     }
   }
   dimension: campaign_id {
+    primary_key: yes
+    hidden: yes
     label: "Campaigns Campaign ID"
   }
-  dimension: total_revenue {
-    type: number
+  measure: dbm_revenue {
+    hidden: yes
+    type: sum
   }
-  dimension: total_impressions {
-    type: number
+  measure: total_impressions {
+    hidden: yes
+    type: sum
   }
-  dimension: total_clicks {
-    type: number
+  measure: total_clicks {
+    hidden: yes
+    type: sum
   }
-  dimension: total_conversions {
-    type: number
+  measure: total_conversions {
+    hidden: yes
+    type: sum
   }
 }
 
@@ -87,7 +93,7 @@ view: campaign_facts {
 view: io_facts {
   derived_table: {
     explore_source: impression_funnel_dv360 {
-      column: total_revenue {}
+      column: dbm_revenue {}
       column: total_impressions {}
       column: total_clicks {}
       column: total_conversions {}
@@ -95,20 +101,26 @@ view: io_facts {
       bind_all_filters: yes
     }
   }
-  dimension: total_revenue {
-    type: number
-  }
-  dimension: total_impressions {
-    type: number
-  }
-  dimension: total_clicks {
-    type: number
-  }
-  dimension: total_conversions {
-    type: number
-  }
   dimension: dbm_insertion_order_id {
+    primary_key: yes
+    hidden: yes
     type: number
+  }
+  measure: dbm_revenue {
+    hidden: yes
+    type: sum
+  }
+  measure: total_impressions {
+    hidden: yes
+    type: sum
+  }
+  measure: total_clicks {
+    hidden: yes
+    type: sum
+  }
+  measure: total_conversions {
+    hidden: yes
+    type: sum
   }
 }
 
@@ -118,7 +130,7 @@ view: io_facts {
 view: line_item_facts {
   derived_table: {
     explore_source: impression_funnel_dv360 {
-      column: total_revenue {}
+      column: dbm_revenue {}
       column: total_impressions {}
       column: total_clicks {}
       column: total_conversions {}
@@ -126,19 +138,25 @@ view: line_item_facts {
       bind_all_filters: yes
     }
   }
-  dimension: total_revenue {
-    type: number
-  }
-  dimension: total_impressions {
-    type: number
-  }
-  dimension: total_clicks {
-    type: number
-  }
-  dimension: total_conversions {
-    type: number
-  }
   dimension: dbm_line_item_id {
+    primary_key: yes
+    hidden: yes
     type: number
+  }
+  measure: dbm_revenue {
+    hidden: yes
+    type: sum
+  }
+  measure: total_impressions {
+    hidden: yes
+    type: sum
+  }
+  measure: total_clicks {
+    hidden: yes
+    type: sum
+  }
+  measure: total_conversions {
+    hidden: yes
+    type: sum
   }
 }
