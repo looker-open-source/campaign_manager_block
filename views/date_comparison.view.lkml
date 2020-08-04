@@ -1,26 +1,19 @@
 view: date_comparison {
   extension: required
 
-  ## AMEND THIS TO HAVE _PAITIONTIME ...
-
-  # ${event_raw} = ${TABLE}._PARTITIONTIME
-
   parameter: comparison_type {
     label: "Date Range"
     view_label: "Date Comparison"
     type: unquoted
     allowed_value: {
-      # label: "This Year vs Last Year to Date"
       label: "Last 7 Days"
       value: "seven"
     }
     allowed_value: {
-      # label: "This Year vs Last Year to Date"
       label: "Last 14 Days"
       value: "fourteen"
     }
     allowed_value: {
-      # label: "This Quarter vs Last Quarter to Date"
       label: "Last 30 Days"
       value: "thirty"
     }
@@ -60,8 +53,6 @@ view: date_comparison {
       ;;
   }
 
-  # REMOVE UNIX_SECONDS FUNCTION ...
-  # (((impression._PARTITIONTIME ) >= ((TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -59 DAY))) AND (impression._PARTITIONTIME ) < ((TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -59 DAY), INTERVAL 60 DAY)))))
 
   dimension: last_14_days_vs_previous_14_days {
     view_label: "Date Comparison"
@@ -75,6 +66,7 @@ view: date_comparison {
       END
       ;;
   }
+
 
   dimension: last_30_days_vs_previous_30_days {
     view_label: "Date Comparison"
