@@ -462,7 +462,7 @@ view: impression_funnel_dv360 {
   dimension: dbm_line_item_id {
     view_label: "Event Attributes"
     label: "Line Item ID"
-    type: number
+    type: string
     sql: ${TABLE}.DBM_Line_Item_ID ;;
     link: {
       label: "Line Item Lookup Dashboard"
