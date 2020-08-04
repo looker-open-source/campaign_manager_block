@@ -14,10 +14,10 @@ view: impression_pdt {
                 --, dbm_matching_targeted_segments
                 , IFNULL(dbm_designated_market_area_dma_id,'Unknown') as dbm_designated_market_area_dma_id
                 , IFNULL(dbm_zip_postal_code,'Unknown') as dbm_zip_postal_code
-                , IFNULL(dbm_state_region_id, 'Unknown') as dbm_state_region_id
                 , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
                 , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
                 , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
+                , IFNULL(dbm_operating_system_id,'Unknown') as dbm_operating_system_id
                 , SUM(dbm_revenue_usd) as total_revenue
                 , count(*) as total_impressions
                 -- sum(dbm_total_media_cost_usd) as total_media_cost
@@ -50,10 +50,10 @@ view: click_pdt {
                     -- , dbm_matching_targeted_segments
                       , IFNULL(dbm_designated_market_area_dma_id,'Unknown') as dbm_designated_market_area_dma_id
                       , IFNULL(dbm_zip_postal_code,'Unknown') as dbm_zip_postal_code
-                      , IFNULL(dbm_state_region_id, 'Unknown') as dbm_state_region_id
                       , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
                       , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
                       , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
+                     , IFNULL(dbm_operating_system_id,'Unknown') as dbm_operating_system_id
                       , count(*) as count_clicks
                   from ${click.SQL_TABLE_NAME}
                   where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
@@ -81,10 +81,10 @@ view: activity_pdt {
                       --, dbm_matching_targeted_segments
                       , IFNULL(dbm_designated_market_area_dma_id,'Unknown') as dbm_designated_market_area_dma_id
                       , IFNULL(dbm_zip_postal_code,'Unknown') as dbm_zip_postal_code
-                      , IFNULL(dbm_state_region_id, 'Unknown') as dbm_state_region_id
                       , IFNULL(DBM_Matching_Targeted_Segments, 'Unknown') as DBM_Matching_Targeted_Segments
                       , IFNULL(DBM_Device_Type,-1) as DBM_Device_Type
                       , IFNULL(DBM_Browser_Platform_ID,'Unknown') as DBM_Browser_Platform_ID
+                      , IFNULL(dbm_operating_system_id,'Unknown') as dbm_operating_system_id
                       , count(*) as count_conversions
                       from ${activity.SQL_TABLE_NAME}
 
@@ -117,10 +117,10 @@ view: impression_funnel_dv360 {
                 --, dbm_matching_targeted_segments
                 ,dbm_designated_market_area_dma_id
                 , dbm_zip_postal_code
-                , dbm_state_region_id
                 ,DBM_Matching_Targeted_Segments
                 ,DBM_Device_Type
                 ,DBM_Browser_Platform_ID
+                ,dbm_operating_system_id
                 ,total_revenue
                 ,total_impressions
                 -- sum(dbm_total_media_cost_usd) as total_media_cost
@@ -145,10 +145,10 @@ view: impression_funnel_dv360 {
                 --, dbm_matching_targeted_segments
                 ,dbm_designated_market_area_dma_id
                 , dbm_zip_postal_code
-                ,  dbm_state_region_id
                 ,DBM_Matching_Targeted_Segments
                 ,DBM_Device_Type
                 ,DBM_Browser_Platform_ID
+                ,dbm_operating_system_id
                 ,null as total_revenue
                 ,null as total_impressions
                 -- sum(dbm_total_media_cost_usd) as total_media_cost
@@ -174,10 +174,10 @@ view: impression_funnel_dv360 {
                 --, dbm_matching_targeted_segments
                 ,dbm_designated_market_area_dma_id
                 , dbm_zip_postal_code
-                ,  dbm_state_region_id
                 ,DBM_Matching_Targeted_Segments
                 ,DBM_Device_Type
                 ,DBM_Browser_Platform_ID
+                ,dbm_operating_system_id
                 ,null as total_revenue
                 ,null as total_impressions
                 -- sum(dbm_total_media_cost_usd) as total_media_cost
@@ -281,6 +281,13 @@ view: impression_funnel_dv360 {
     sql: ${TABLE}.DBM_Browser_Platform_ID ;;
   }
 
+  dimension: dbm_operating_system_id {
+    view_label: "Event Attributes"
+    label: "Operating System ID"
+    type: string
+    sql: ${TABLE}.dbm_operating_system_id ;;
+  }
+
   dimension: dbm_site_id {
     view_label: "Event Attributes"
     label: "Site ID"
@@ -326,14 +333,6 @@ view: impression_funnel_dv360 {
     type: string
     sql: ${TABLE}.dbm_zip_postal_code ;;
   }
-
-  dimension: dbm_state_region_id {
-    view_label: "Event Attributes"
-    label: "State ID"
-    type: string
-    sql: ${TABLE}.dbm_state_region_id ;;
-  }
-
   dimension: count_conversions {
     hidden: yes
     type: number
@@ -1075,7 +1074,6 @@ view: impression_funnel_dv360 {
       dbm_matching_targeted_segments,
       dbm_designated_market_area_dma_id,
       dbm_zip_postal_code,
-      dbm_state_region_id,
       total_revenue,
       count_impressions
     ]
