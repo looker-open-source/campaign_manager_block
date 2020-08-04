@@ -103,6 +103,7 @@ explore: impression_funnel {
 }
 
 explore: impression_funnel_dv360 {
+  view_label: "DV360 Events"
   label: "(2.5) Impression Funnel DV360"
   description: "Use this funnel explore for a more granular view at cost and impression metrics for DV360 campaigns"
   join: dynamic_io_rank {
@@ -127,6 +128,12 @@ explore: impression_funnel_dv360 {
     type: left_outer
     relationship: many_to_one
     sql_on: ${impression_funnel_dv360.dbm_line_item_id} = ${line_item_facts.dbm_line_item_id} ;;
+  }
+
+  join: dbm_matching_targeted_segments_array {
+    view_label: "DV360 Events"
+    sql: LEFT JOIN UNNEST(${impression_funnel_dv360.dbm_matching_targeted_segments_array}) as dbm_matching_targeted_segments_array ;;
+    relationship: one_to_many
   }
 }
 

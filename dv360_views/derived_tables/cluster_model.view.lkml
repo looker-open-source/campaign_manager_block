@@ -1,5 +1,10 @@
 # If necessary, uncomment the line below to include explore_source.
-include: "campaign_manager.model.lkml"
+include: "/models/campaign_manager.model.lkml"
+
+datagroup: bqml_datagroup {
+  sql_trigger: select CURRENT_DATE() ;;
+  max_cache_age: "24 hours"
+}
 
 view: clustering_dataset {
   derived_table: {
