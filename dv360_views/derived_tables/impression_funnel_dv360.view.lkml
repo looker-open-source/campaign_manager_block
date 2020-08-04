@@ -429,7 +429,7 @@ view: impression_funnel_dv360 {
     sql: ${TABLE}.DBM_Insertion_Order_ID ;;
     link: {
       label: "IO Lookup Dashboard"
-      url: "/dashboards-next/20?Insertion%20Order={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression.impression_date'] | url_encode }}"
+      url: "/dashboards-next/38?Insertion%20Order={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
@@ -448,7 +448,7 @@ view: impression_funnel_dv360 {
     link: {
       label: "IO Lookup Dashboard"
       # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
-      url: "/dashboards-next/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression.impression_date'] | url_encode }}"
+      url: "/dashboards-next/38?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
@@ -465,7 +465,7 @@ view: impression_funnel_dv360 {
     sql: ${TABLE}.DBM_Line_Item_ID ;;
     link: {
       label: "Line Item Lookup Dashboard"
-      url: "/dashboards/26?Line%20Item%20ID={{ value | encode_uri }}"
+       url: "/dashboards-next/41?Line+Item+ID={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
@@ -504,7 +504,7 @@ view: impression_funnel_dv360 {
 
   dimension: campaign_id_button {
     view_label: "Event Attributes"
-    label: ""
+    hidden: yes
     link: {
       url: "Link to DV360 for Campaign {{value}}"
       icon_url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
