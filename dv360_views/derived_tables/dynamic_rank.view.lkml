@@ -51,14 +51,17 @@ view: dynamic_io_rank {
   }
 
   dimension: rank {
+    hidden: yes
     type: number
     sql: ${TABLE}.rank ;;
   }
 
   filter: rank_input {
+    hidden: yes
     type: number
   }
   dimension: rank_comparitor {
+    hidden: yes
     type: string
     sql: CASE WHEN  ${rank} = 1 then CONCAT('1. ',CAST(${impression_funnel_dv360.dbm_insertion_order_id} as string))
           WHEN  ${rank} = 2 then CONCAT('2. ',CAST(${impression_funnel_dv360.dbm_insertion_order_id} as string))

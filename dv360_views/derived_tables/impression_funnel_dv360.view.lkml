@@ -240,22 +240,29 @@ view: impression_funnel_dv360 {
   }
 
   dimension_group: impression {
-    label: "Event Date"
+    view_label: "Event Attributes"
+    label: "Event"
     type: time
+    timeframes: [raw, time, date, week, month, year]
     sql:${TABLE}.event_time ;;
   }
 
   dimension: dbm_advertiser_id {
+    view_label: "Event Attributes"
+    label: "Advertiser ID"
     type: string
     sql: ${TABLE}.dbm_advertiser_id ;;
   }
 
   dimension: dbm_device_type {
+    hidden: yes
     type: number
     sql: ${TABLE}.DBM_Device_Type ;;
   }
 
   dimension: DBM_Device_Type_Name {
+    view_label: "Event Attributes"
+    label: "Device Type"
     type: string
     sql: CASE
           WHEN DBM_Device_Type=0 THEN "Computer"
@@ -268,31 +275,41 @@ view: impression_funnel_dv360 {
   }
 
   dimension: dbm_browser_platform_id {
+    view_label: "Event Attributes"
+    label: "Browser Platform ID"
     type: string
     sql: ${TABLE}.DBM_Browser_Platform_ID ;;
   }
 
   dimension: dbm_site_id {
+    view_label: "Event Attributes"
+    label: "Site ID"
     type: string
     sql: ${TABLE}.dbm_site_id ;;
   }
 
   dimension: dbm_exchange_id {
+    view_label: "Event Attributes"
+    label: "Exchange ID"
     type: string
     sql: ${TABLE}.dbm_exchange_id ;;
   }
 
   dimension: dbm_auction_id {
+    view_label: "Event Attributes"
+    label: "Auction ID"
     type: string
     sql: ${TABLE}.dbm_auction_id ;;
   }
 
   dimension: dbm_attributed_inventory_source_is_public {
+    hidden: yes
     type: string
     sql: ${TABLE}.dbm_attributed_inventory_source_is_public ;;
   }
 
   dimension: dbm_matching_targeted_segments {
+    hidden: yes
     type: string
     sql: ${TABLE}.dbm_matching_targeted_segments ;;
   }
@@ -304,41 +321,51 @@ view: impression_funnel_dv360 {
   }
 
   dimension: dbm_zip_postal_code {
+    view_label: "Event Attributes"
+    label: "Zip Code"
     type: string
     sql: ${TABLE}.dbm_zip_postal_code ;;
   }
 
   dimension: dbm_state_region_id {
+    view_label: "Event Attributes"
+    label: "State ID"
     type: string
     sql: ${TABLE}.dbm_state_region_id ;;
   }
 
   dimension: count_conversions {
+    hidden: yes
     type: number
     sql: ${TABLE}.count_conversions ;;
   }
 
   dimension: count_clicks {
+    hidden: yes
     type: number
     sql: ${TABLE}.count_clicks ;;
   }
 
   dimension: count_impressions {
+    hidden: yes
     type: number
     sql: ${TABLE}.total_impressions ;;
   }
 
   dimension: active_view_viewable_impressions_d {
+    hidden: yes
     type: number
     sql: ${TABLE}.active_view_viewable_impressions ;;
   }
 
   dimension: active_view_measurable_impressions_d {
+    hidden: yes
     type: number
     sql: ${TABLE}.active_view_measurable_impressions ;;
   }
 
   dimension: active_view_eligible_impressions_d {
+    hidden: yes
     type: number
     sql: ${TABLE}.active_view_eligible_impression ;;
   }
@@ -352,31 +379,43 @@ view: impression_funnel_dv360 {
   ### Impression measures
 
   measure: total_impressions {
+    view_label: "Overall Metrics"
     type: sum
     sql: ${count_impressions} ;;
   }
 
   measure: total_conversions {
+    view_label: "Overall Metrics"
     type: sum
     sql: ${count_conversions} ;;
   }
 
   measure: total_clicks {
+    view_label: "Overall Metrics"
     type: sum
     sql: ${count_clicks} ;;
   }
 
-  measure: active_view_viewable_impressions  {
+  measure: active_view_viewable_impressions {
+    view_label: "Overall Metrics"
+    label: "Viewable Impressions"
+    description: "The number of impressions on the site that were viewable out of all measurable impressions"
     type: sum
     sql: ${active_view_viewable_impressions_d} ;;
   }
 
-  measure: active_view_measurable_impressions  {
+  measure: active_view_measurable_impressions {
+    view_label: "Overall Metrics"
+    label: "Measureable Impressions"
+    description: "The total number of impressions that were measurable with Active View. An ad is measurable when the Active View tag is able to capture viewability data about the impression."
     type: sum
     sql: ${active_view_measurable_impressions_d} ;;
   }
 
-  measure: active_view_eligible_impressions  {
+  measure: active_view_eligible_impressions {
+    view_label: "Overall Metrics"
+    label: "Eligible Impressions"
+    description: "The total number of impressions that were eligible to measure viewability. An impression is eligible if the ad unit has a supported creative format and tag type."
     type: sum
     sql: ${active_view_eligible_impressions_d} ;;
   }
@@ -385,6 +424,8 @@ view: impression_funnel_dv360 {
   ### copied over
 
   dimension: dbm_insertion_order_id {
+    view_label: "Event Attributes"
+    label: "Insertion Order ID"
     type: number
     sql: ${TABLE}.DBM_Insertion_Order_ID ;;
     link: {
@@ -401,6 +442,8 @@ view: impression_funnel_dv360 {
   }
 
   dimension: dbm_insertion_order_id_label {
+    view_label: "Event Attributes"
+    label: "Insertion Order ID Label"
     type: string
     sql: CONCAT(CAST(${dynamic_io_rank.rank} as string),'.) ',CAST(${TABLE}.DBM_Insertion_Order_ID as string)) ;;
     link: {
@@ -416,8 +459,9 @@ view: impression_funnel_dv360 {
     }
   }
 
-
   dimension: dbm_line_item_id {
+    view_label: "Event Attributes"
+    label: "Line Item ID"
     type: number
     sql: ${TABLE}.DBM_Line_Item_ID ;;
     link: {
@@ -433,13 +477,17 @@ view: impression_funnel_dv360 {
   }
 
   dimension: dbm_designated_market_area_dma_id {
+    view_label: "Event Attributes"
+    label: "DMA ID"
     type: number
-    sql: ${TABLE}.DBM_Designated_Market_Area_DMA_ID ;;
     map_layer_name: dma
+    sql: ${TABLE}.DBM_Designated_Market_Area_DMA_ID ;;
     drill_fields: [dbm_zip_postal_code]
   }
 
   dimension: campaign_id {
+    view_label: "Event Attributes"
+    label: "Campaign ID"
     link: {
       url: "Link to DV360 for Campaign {{value}}"
       icon_url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
@@ -456,6 +504,8 @@ view: impression_funnel_dv360 {
   }
 
   dimension: campaign_id_button {
+    view_label: "Event Attributes"
+    label: ""
     link: {
       url: "Link to DV360 for Campaign {{value}}"
       icon_url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
@@ -473,6 +523,8 @@ view: impression_funnel_dv360 {
   }
 
   dimension: is_public {
+    view_label: "Event Attributes"
+    label: "Inventory Source Public vs Private"
     type: string
     sql: CASE
           WHEN CAST(${dbm_attributed_inventory_source_is_public} AS STRING) = 'true' THEN 'Public'
@@ -482,28 +534,12 @@ view: impression_funnel_dv360 {
     drill_fields: [dbm_exchange_id,dbm_site_id]
   }
 
-#   dimension: dbm_device_type_name {
-#     type: string
-#     sql: CASE
-#       WHEN ${TABLE}.DBM_Device_Type = 0 THEN "Computer"
-#       WHEN ${TABLE}.DBM_Device_Type = 1 THEN "Other"
-#       WHEN ${TABLE}.DBM_Device_Type = 2 THEN "Smart Phone"
-#       WHEN ${TABLE}.DBM_Device_Type = 3 THEN "Tablet"
-#       WHEN ${TABLE}.DBM_Device_Type = 4 THEN "SmartTV"
-#       ELSE "Other" END ;;
-#     drill_fields: [dbm_browser_platform_id,dbm_operating_system_id]
-#   }
-#
-#   dimension: dbm_browser_platform_id {
-#     type: string
-#     sql: ${TABLE}.DBM_Browser_Platform_ID ;;
-#     drill_fields: [browser_platform_version]
-#   }
-
-
   ### Line Item Metrics
 
   measure: line_item_count {
+    view_label: "Overall Metrics"
+    label: "Total Line Items"
+    description: "Count of Distinct Line Items"
     type: count_distinct
     sql: ${dbm_line_item_id} ;;
     drill_fields: []
@@ -522,6 +558,9 @@ view: impression_funnel_dv360 {
   }
 
   measure: insertion_order_count {
+    view_label: "Overall Metrics"
+    label: "Total Insertion Orders"
+    description: "Count of Distinct Insertion Orders"
     type: count_distinct
     sql: ${dbm_insertion_order_id} ;;
     drill_fields: [dbm_insertion_order_id]
@@ -530,7 +569,9 @@ view: impression_funnel_dv360 {
   ## Cost Metrics
 
   measure: dbm_revenue {
+    view_label: "Overall Metrics"
     label: "Total Spend"
+    description: "The total amount in USD made by the partner account for the event"
     type: sum
     value_format_name: usd
     sql: ${total_revenue} ;;
@@ -539,8 +580,9 @@ view: impression_funnel_dv360 {
   ## CPA Performance
 
   measure: cpa {
-    description: "Cost Per Acquisition"
+    view_label: "Performance Metrics"
     label: "CPA"
+    description: "Cost per Acquisition"
     type:  number
     value_format_name: usd
     sql: 1.0 * ${dbm_revenue}/nullif(${total_conversions},0) ;;
@@ -568,21 +610,27 @@ view: impression_funnel_dv360 {
   }
 
   measure: contribution_to_campaign_cpa_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall campaign CPA performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpa_without_campaign_level} - ${cpa}) / nullif(${cpa},0) ;;
   }
 
   measure: contribution_to_io_cpa_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall insertion order CPA performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpa_without_io_level} - ${cpa}) / nullif(${cpa},0) ;;
   }
 
   measure: contribution_to_line_item_cpa_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall line item CPA performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpa_without_line_item_level} - ${cpa}) / nullif(${cpa},0) ;;
@@ -591,8 +639,9 @@ view: impression_funnel_dv360 {
   ## CPC
 
   measure: cpc {
-    description: "Cost Per Click"
+    view_label: "Performance Metrics"
     label: "CPC"
+    description: "Cost Per Click"
     type: number
     value_format_name: usd
     sql: 1.0 * ${dbm_revenue}/nullif(${total_clicks},0) ;;
@@ -620,21 +669,27 @@ view: impression_funnel_dv360 {
   }
 
   measure: contribution_to_campaign_cpc_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall campaign CPC performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpc_without_campaign_level} - ${cpc}) / nullif(${cpc},0) ;;
   }
 
   measure: contribution_to_io_cpc_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall insertion order CPC performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpc_without_io_level} - ${cpc}) / nullif(${cpc},0) ;;
   }
 
   measure: contribution_to_line_item_cpc_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall line item CPC performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpc_without_line_item_level} - ${cpc}) / nullif(${cpc},0) ;;
@@ -643,6 +698,7 @@ view: impression_funnel_dv360 {
   ## CPM
 
   measure: cpm {
+    view_label: "Performance Metrics"
     description: "Cost Per 1000 Impressions"
     label: "CPM"
     type: number
@@ -672,21 +728,27 @@ view: impression_funnel_dv360 {
   }
 
   measure: contribution_to_campaign_cpm_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall campaign CPM performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpm_without_campaign_level} - ${cpm}) / nullif(${cpm},0) ;;
   }
 
   measure: contribution_to_io_cpm_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall insertion order CPM performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpm_without_io_level} - ${cpm}) / nullif(${cpm},0) ;;
   }
 
   measure: contribution_to_line_item_cpm_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall line item CPM performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cpm_without_line_item_level} - ${cpm}) / nullif(${cpm},0) ;;
@@ -697,6 +759,7 @@ view: impression_funnel_dv360 {
   ## Click Through Rate
 
   measure: ctr {
+    view_label: "Performance Metrics"
     description: "Click Through Rate"
     label: "CTR"
     type: number
@@ -726,21 +789,27 @@ view: impression_funnel_dv360 {
   }
 
   measure: contribution_to_campaign_ctr_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall campaign CTR performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${ctr_without_campaign_level} - ${ctr}) / nullif(${ctr},0) ;;
   }
 
   measure: contribution_to_io_ctr_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall insertion order CTR performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${ctr_without_io_level} - ${ctr}) / nullif(${ctr},0) ;;
   }
 
   measure: contribution_to_line_item_ctr_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall line item CTR performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${ctr_without_line_item_level} - ${ctr}) / nullif(${ctr},0) ;;
@@ -749,6 +818,7 @@ view: impression_funnel_dv360 {
   ## Conversion Rate
 
   measure: cr {
+    view_label: "Performance Metrics"
     description: "Conversion Rate"
     label: "CR"
     type: number
@@ -778,35 +848,45 @@ view: impression_funnel_dv360 {
   }
 
   measure: contribution_to_campaign_cr_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall campaign CR performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${ctr_without_campaign_level} - ${cr}) / nullif(${cr},0) ;;
   }
 
   measure: contribution_to_io_cr_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall insertion order CR performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cr_without_io_level} - ${cr}) / nullif(${cr},0) ;;
   }
 
   measure: contribution_to_line_item_cr_performance {
+    view_label: "Performance Metrics"
     group_label: "Contribution to Performance"
+    description: "The % change to overall line item CR performance if the chosen attribute had never been included"
     type: number
     value_format_name: percent_2
     sql: 1.0 * (${cr_without_line_item_level} - ${cr}) / nullif(${cr},0) ;;
   }
 
   measure: percent_impressions_viewed {
-    description: "Impression View Rate"
+    view_label: "Performance Metrics"
+    label: "% of Impressions Viewed"
+    description: "Viewable Impressions/Measurable Impressions"
     type: number
     value_format_name: percent_2
     sql: 1.0 * ${active_view_viewable_impressions}/nullif(${active_view_measurable_impressions},0) ;;
   }
 
   measure: percent_impressions_measurable {
-    description: "Measureable Impression Rate"
+    view_label: "Performance Metrics"
+    label: "% of Measurable Impressions"
+    description: "Measurable Impressions/Eligible Impressions"
     type: number
     value_format_name: percent_2
     sql: 1.0 * ${active_view_measurable_impressions}/nullif(${active_view_eligible_impressions},0) ;;
@@ -815,37 +895,32 @@ view: impression_funnel_dv360 {
   ### Metric Selector
 
   parameter:  metric_selector {
+    view_label: "Event Attributes"
     allowed_value: {
-      label: "Cost Per Acquisition"
+      label: "CPA"
       value: "Cost Per Acquisition"
     }
     allowed_value: {
-      label: "Cost Per Click"
+      label: "CPC"
       value: "Cost Per Click"
     }
     allowed_value: {
-      label: "Click Through Rate"
+      label: "CTR"
       value: "Click Through Rate"
     }
     allowed_value: {
-      label: "Cost Per 1000 Impressions"
+      label: "CPM"
       value: "Cost Per 1000 Impressions"
     }
     allowed_value: {
-      label: "Conversion Rate"
+      label: "CR"
       value: "Conversion Rate"
-    }
-    allowed_value: {
-      label: "Viewable Impression Rate"
-      value: "Viewable Impression Rate"
-    }
-    allowed_value: {
-      label: "Measureable Impression Rate"
-      value: "Measureable Impression Rate"
     }
   }
 
   measure: dynamic_measure {
+    view_label: "Event Attributes"
+    description: "Use this as your measure when utilizing the Metric Selector parameter"
     label_from_parameter: metric_selector
     type: number
     sql:  {% if metric_selector._parameter_value == "'Cost Per Acquisition'" %} ${cpa}
@@ -942,10 +1017,12 @@ view: impression_funnel_dv360 {
       ### Campaign Benchmarking
 
   filter: campaign_input {
+    view_label: "Event Attributes"
     type: string
     suggest_dimension: campaign_id
   }
   dimension: campaign_comparison {
+    view_label: "Event Attributes"
     type: string
     sql: CASE WHEN {% condition campaign_input %} ${campaign_id} {% endcondition %}
           THEN CONCAT('1. ',cast(${campaign_id} as string))
@@ -955,11 +1032,13 @@ view: impression_funnel_dv360 {
   ### Comparion vs. priod period
 
   filter: previous_period_filter {
+    view_label: "Event Attributes"
     type: date
     description: "Use this filter for period analysis"
   }
 
   dimension: previous_period {
+    view_label: "Event Attributes"
     type: string
     description: "The reporting period as selected by the Previous Period Filter"
     sql:
@@ -1005,6 +1084,9 @@ view: impression_funnel_dv360 {
 
 view: dbm_matching_targeted_segments_array {
   dimension: dbm_matching_targeted_segments {
+    view_label: "Event Attributes"
+    label: "Targeted Segment ID"
+    description: "The ID of targeted user lists that match the visitor"
     type: string
     sql: ${TABLE} ;;
   }
