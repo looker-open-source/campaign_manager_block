@@ -1,7 +1,7 @@
 view: impression_pdt {
   derived_table: {
     datagroup_trigger: new_day
-    sql: select TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as impression_time
+    sql: select TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as event_time
             , campaign_id
 
                 , dbm_advertiser_id
@@ -37,8 +37,8 @@ view: impression_pdt {
 view: click_pdt {
   derived_table: {
     datagroup_trigger: new_day
-    sql: select
-          campaign_id
+    sql: select TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as event_time
+          ,campaign_id
                       -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
                       , dbm_advertiser_id
                       , dbm_insertion_order_id
@@ -59,7 +59,7 @@ view: click_pdt {
                   where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
                   and dbm_advertiser_id is not null
 
-                  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+                  group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
       ;;
   }
 }
@@ -68,7 +68,8 @@ view: activity_pdt {
   derived_table: {
     datagroup_trigger: new_day
     sql: select
-          campaign_id
+      TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as event_time
+          , campaign_id
                       -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
                       , dbm_advertiser_id
                       , dbm_insertion_order_id
@@ -91,7 +92,7 @@ view: activity_pdt {
                     and _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
                     and dbm_advertiser_id is not null
 
-                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+                      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
       ;;
   }
 }
@@ -100,58 +101,148 @@ view: activity_pdt {
 view: impression_funnel_dv360 {
   derived_table: {
     datagroup_trigger: new_day
-    partition_keys: ["impression_time"]
-    sql: select line_item_impression_metrics.*
-          ,line_item_click_metrics.count_clicks as count_clicks
-          ,line_item_activity_metrics.count_conversions as count_conversions
-          from ${impression_pdt.SQL_TABLE_NAME} line_item_impression_metrics
-          left join ${click_pdt.SQL_TABLE_NAME} line_item_click_metrics
+    partition_keys: ["event_time"]
+    cluster_keys: ["event_type"]
+    sql: SELECT *, GENERATE_UUID() as primary_key from (SELECT
+    event_time
+            , campaign_id
 
-                      -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
-          on line_item_impression_metrics.campaign_id = line_item_click_metrics.campaign_id
-          and line_item_impression_metrics.dbm_advertiser_id = line_item_click_metrics.dbm_advertiser_id
-          and line_item_impression_metrics.dbm_insertion_order_id = line_item_click_metrics.dbm_insertion_order_id
-          and line_item_impression_metrics.dbm_line_item_id = line_item_click_metrics.dbm_line_item_id
-          and line_item_impression_metrics.dbm_site_id = line_item_click_metrics.dbm_site_id
-          and line_item_impression_metrics.dbm_exchange_id = line_item_click_metrics.dbm_exchange_id
-          and line_item_impression_metrics.dbm_auction_id = line_item_click_metrics.dbm_auction_id
-          and line_item_impression_metrics.dbm_attributed_inventory_source_is_public = line_item_click_metrics.dbm_attributed_inventory_source_is_public
-        --and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_click_metrics.dbm_matching_targeted_segments
-          and line_item_impression_metrics.dbm_designated_market_area_dma_id = line_item_click_metrics.dbm_designated_market_area_dma_id
-          and line_item_impression_metrics.dbm_zip_postal_code = line_item_click_metrics.dbm_zip_postal_code
-          and line_item_impression_metrics.dbm_state_region_id = line_item_click_metrics.dbm_state_region_id
-          and line_item_impression_metrics.DBM_Matching_Targeted_Segments = line_item_click_metrics.DBM_Matching_Targeted_Segments
-          and line_item_impression_metrics.DBM_Device_Type = line_item_click_metrics.DBM_Device_Type
-          and line_item_impression_metrics.DBM_Browser_Platform_ID = line_item_click_metrics.DBM_Browser_Platform_ID
-          left join ${activity_pdt.SQL_TABLE_NAME} line_item_activity_metrics
+                , dbm_advertiser_id
+                , dbm_insertion_order_id
+                , dbm_line_item_id
+                , dbm_site_id
+                , dbm_exchange_id
+                , dbm_auction_id
+                , dbm_attributed_inventory_source_is_public
+                --, dbm_matching_targeted_segments
+                ,dbm_designated_market_area_dma_id
+                , dbm_zip_postal_code
+                , dbm_state_region_id
+                ,DBM_Matching_Targeted_Segments
+                ,DBM_Device_Type
+                ,DBM_Browser_Platform_ID
+                ,total_revenue
+                ,total_impressions
+                -- sum(dbm_total_media_cost_usd) as total_media_cost
+                -- TO DO: confirm we can use active view measureable impressions
+                , active_view_viewable_impressions
+                , active_view_measurable_impressions
+                , active_view_eligible_impression
+                , 'Impression' as event_type
+                , null as count_clicks
+                , null as count_conversions from ${impression_pdt.SQL_TABLE_NAME}
+    UNION ALL
+    SELECT  event_time
+            , campaign_id
 
-                      -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
-          on line_item_impression_metrics.campaign_id = line_item_activity_metrics.campaign_id
-          and line_item_impression_metrics.dbm_advertiser_id = line_item_activity_metrics.dbm_advertiser_id
-          and line_item_impression_metrics.dbm_insertion_order_id = line_item_activity_metrics.dbm_insertion_order_id
-          and line_item_impression_metrics.dbm_line_item_id = line_item_activity_metrics.dbm_line_item_id
-          and line_item_impression_metrics.dbm_site_id = line_item_activity_metrics.dbm_site_id
-          and line_item_impression_metrics.dbm_exchange_id = line_item_activity_metrics.dbm_exchange_id
-          and line_item_impression_metrics.dbm_auction_id = line_item_activity_metrics.dbm_auction_id
-          and line_item_impression_metrics.dbm_attributed_inventory_source_is_public = line_item_activity_metrics.dbm_attributed_inventory_source_is_public
-        -- and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_activity_metrics.dbm_matching_targeted_segments
-          and line_item_impression_metrics.dbm_designated_market_area_dma_id = line_item_activity_metrics.dbm_designated_market_area_dma_id
-          and line_item_impression_metrics.dbm_zip_postal_code = line_item_activity_metrics.dbm_zip_postal_code
-          and line_item_impression_metrics.dbm_state_region_id = line_item_activity_metrics.dbm_state_region_id
-          and line_item_impression_metrics.DBM_Matching_Targeted_Segments = line_item_activity_metrics.DBM_Matching_Targeted_Segments
-          and line_item_impression_metrics.DBM_Device_Type = line_item_activity_metrics.DBM_Device_Type
-          and line_item_impression_metrics.DBM_Browser_Platform_ID = line_item_activity_metrics.DBM_Browser_Platform_ID
-      ;;
-  }
+                , dbm_advertiser_id
+                , dbm_insertion_order_id
+                , dbm_line_item_id
+                , dbm_site_id
+                , dbm_exchange_id
+                , dbm_auction_id
+                , dbm_attributed_inventory_source_is_public
+                --, dbm_matching_targeted_segments
+                ,dbm_designated_market_area_dma_id
+                , dbm_zip_postal_code
+                ,  dbm_state_region_id
+                ,DBM_Matching_Targeted_Segments
+                ,DBM_Device_Type
+                ,DBM_Browser_Platform_ID
+                ,null as total_revenue
+                ,null as total_impressions
+                -- sum(dbm_total_media_cost_usd) as total_media_cost
+                -- TO DO: confirm we can use active view measureable impressions
+                , null as active_view_viewable_impressions
+                , null as active_view_measurable_impressions
+                , null as active_view_eligible_impression
+                ,'Click' as event_type
+                , count_clicks as count_clicks
+                , null as count_conversions
+                from ${click_pdt.SQL_TABLE_NAME}
+    UNION ALL
+    SELECT event_time
+            , campaign_id
 
-  measure: count {
-    type: count
-    drill_fields: [detail*]
+                , dbm_advertiser_id
+                , dbm_insertion_order_id
+                , dbm_line_item_id
+                , dbm_site_id
+                , dbm_exchange_id
+                , dbm_auction_id
+                , dbm_attributed_inventory_source_is_public
+                --, dbm_matching_targeted_segments
+                ,dbm_designated_market_area_dma_id
+                , dbm_zip_postal_code
+                ,  dbm_state_region_id
+                ,DBM_Matching_Targeted_Segments
+                ,DBM_Device_Type
+                ,DBM_Browser_Platform_ID
+                ,null as total_revenue
+                ,null as total_impressions
+                -- sum(dbm_total_media_cost_usd) as total_media_cost
+                -- TO DO: confirm we can use active view measureable impressions
+                , null as active_view_viewable_impressions
+                , null as active_view_measurable_impressions
+                , null as active_view_eligible_impression
+                ,'Conversion' as event_type
+                , null as count_clicks
+                , count_conversions as count_conversions
+                from ${activity_pdt.SQL_TABLE_NAME});;
+      }
+# sql: select line_item_impression_metrics.*
+#     ,line_item_click_metrics.count_clicks as count_clicks
+#     ,line_item_activity_metrics.count_conversions as count_conversions
+#     from ${impression_pdt.SQL_TABLE_NAME} line_item_impression_metrics
+#     left join ${click_pdt.SQL_TABLE_NAME} line_item_click_metrics
+
+#     -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
+#     on line_item_impression_metrics.campaign_id = line_item_click_metrics.campaign_id
+#     and line_item_impression_metrics.dbm_advertiser_id = line_item_click_metrics.dbm_advertiser_id
+#     and line_item_impression_metrics.dbm_insertion_order_id = line_item_click_metrics.dbm_insertion_order_id
+#     and line_item_impression_metrics.dbm_line_item_id = line_item_click_metrics.dbm_line_item_id
+#     and line_item_impression_metrics.dbm_site_id = line_item_click_metrics.dbm_site_id
+#     and line_item_impression_metrics.dbm_exchange_id = line_item_click_metrics.dbm_exchange_id
+#     and line_item_impression_metrics.dbm_auction_id = line_item_click_metrics.dbm_auction_id
+#     and line_item_impression_metrics.dbm_attributed_inventory_source_is_public = line_item_click_metrics.dbm_attributed_inventory_source_is_public
+#     --and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_click_metrics.dbm_matching_targeted_segments
+#     and line_item_impression_metrics.dbm_designated_market_area_dma_id = line_item_click_metrics.dbm_designated_market_area_dma_id
+#     and line_item_impression_metrics.dbm_zip_postal_code = line_item_click_metrics.dbm_zip_postal_code
+#     and line_item_impression_metrics.dbm_state_region_id = line_item_click_metrics.dbm_state_region_id
+#     and line_item_impression_metrics.DBM_Matching_Targeted_Segments = line_item_click_metrics.DBM_Matching_Targeted_Segments
+#     and line_item_impression_metrics.DBM_Device_Type = line_item_click_metrics.DBM_Device_Type
+#     and line_item_impression_metrics.DBM_Browser_Platform_ID = line_item_click_metrics.DBM_Browser_Platform_ID
+#     left join ${activity_pdt.SQL_TABLE_NAME} line_item_activity_metrics
+
+#     -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
+#     on line_item_impression_metrics.campaign_id = line_item_activity_metrics.campaign_id
+#     and line_item_impression_metrics.dbm_advertiser_id = line_item_activity_metrics.dbm_advertiser_id
+#     and line_item_impression_metrics.dbm_insertion_order_id = line_item_activity_metrics.dbm_insertion_order_id
+#     and line_item_impression_metrics.dbm_line_item_id = line_item_activity_metrics.dbm_line_item_id
+#     and line_item_impression_metrics.dbm_site_id = line_item_activity_metrics.dbm_site_id
+#     and line_item_impression_metrics.dbm_exchange_id = line_item_activity_metrics.dbm_exchange_id
+#     and line_item_impression_metrics.dbm_auction_id = line_item_activity_metrics.dbm_auction_id
+#     and line_item_impression_metrics.dbm_attributed_inventory_source_is_public = line_item_activity_metrics.dbm_attributed_inventory_source_is_public
+#     -- and line_item_impression_metrics.dbm_matching_targeted_segments = line_item_activity_metrics.dbm_matching_targeted_segments
+#     and line_item_impression_metrics.dbm_designated_market_area_dma_id = line_item_activity_metrics.dbm_designated_market_area_dma_id
+#     and line_item_impression_metrics.dbm_zip_postal_code = line_item_activity_metrics.dbm_zip_postal_code
+#     and line_item_impression_metrics.dbm_state_region_id = line_item_activity_metrics.dbm_state_region_id
+#     and line_item_impression_metrics.DBM_Matching_Targeted_Segments = line_item_activity_metrics.DBM_Matching_Targeted_Segments
+#     and line_item_impression_metrics.DBM_Device_Type = line_item_activity_metrics.DBM_Device_Type
+#     and line_item_impression_metrics.DBM_Browser_Platform_ID = line_item_activity_metrics.DBM_Browser_Platform_ID
+#     ;;
+
+  dimension: primary_key {
+    hidden: yes
+    primary_key: yes
+    type: string
+    sql: ${TABLE}.primary_key ;;
   }
 
   dimension_group: impression {
+    label: "Event Date"
     type: time
-    sql:${TABLE}.impression_time ;;
+    sql:${TABLE}.event_time ;;
   }
 
   dimension: dbm_advertiser_id {
@@ -204,6 +295,12 @@ view: impression_funnel_dv360 {
   dimension: dbm_matching_targeted_segments {
     type: string
     sql: ${TABLE}.dbm_matching_targeted_segments ;;
+  }
+
+  dimension: dbm_matching_targeted_segments_array {
+    type: string
+    hidden: yes
+    sql:  SPLIT(${dbm_matching_targeted_segments},' ');;
   }
 
   dimension: dbm_zip_postal_code {
@@ -317,7 +414,6 @@ view: impression_funnel_dv360 {
       url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{campaign_id._value}}/io/{{dbm_insertion_order_id._value}}/lis"
       icon_url: "https://www.searchlaboratory.com/wp-content/uploads/2019/02/DV360-1.png"
     }
-    drill_fields: [dbm_line_item_id]
   }
 
 
@@ -357,6 +453,23 @@ view: impression_funnel_dv360 {
 # </center>
 # </html>
 # ;;
+  }
+
+  dimension: campaign_id_button {
+    link: {
+      url: "Link to DV360 for Campaign {{value}}"
+      icon_url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
+    }
+    sql: ${TABLE}.campaign_id ;;
+    html:
+    <html>
+<center>
+<button style="background-color: #4285F4; border: none; text-align: center; color: white; padding: 10px 25px; font-size: 12px;">
+<a style="text-decoration: none; color: white;" href="https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?">
+<b>Go to DV360 for<br>Selected Campaign</b></a></button>
+</center>
+</html>
+;;
   }
 
   dimension: is_public {
@@ -427,6 +540,7 @@ view: impression_funnel_dv360 {
 
   measure: cpa {
     description: "Cost Per Acquisition"
+    label: "CPA"
     type:  number
     value_format_name: usd
     sql: 1.0 * ${dbm_revenue}/nullif(${total_conversions},0) ;;
@@ -478,6 +592,7 @@ view: impression_funnel_dv360 {
 
   measure: cpc {
     description: "Cost Per Click"
+    label: "CPC"
     type: number
     value_format_name: usd
     sql: 1.0 * ${dbm_revenue}/nullif(${total_clicks},0) ;;
@@ -529,6 +644,7 @@ view: impression_funnel_dv360 {
 
   measure: cpm {
     description: "Cost Per 1000 Impressions"
+    label: "CPM"
     type: number
     value_format: "$0.00"
     sql:  1.0 * ${dbm_revenue}/nullif(${total_impressions},0)*1000;;
@@ -582,6 +698,7 @@ view: impression_funnel_dv360 {
 
   measure: ctr {
     description: "Click Through Rate"
+    label: "CTR"
     type: number
     value_format_name: percent_2
     sql: 1.0 * ${total_clicks}/nullif(${total_impressions},0) ;;
@@ -633,6 +750,7 @@ view: impression_funnel_dv360 {
 
   measure: cr {
     description: "Conversion Rate"
+    label: "CR"
     type: number
     value_format_name: percent_2
     sql: 1.0 * ${total_conversions}/nullif(${total_impressions},0) ;;
@@ -769,6 +887,7 @@ view: impression_funnel_dv360 {
   measure: dynamic_measure_label {
     label_from_parameter: metric_selector
     type: number
+    hidden: yes
     sql:  {% if metric_selector._parameter_value == "'Cost Per Acquisition'" %} ${cpa}
             {% elsif metric_selector._parameter_value == "'Cost Per Click'" %} ${cpc}
               {% elsif metric_selector._parameter_value == "'Click Through Rate'" %} ${ctr}
@@ -804,6 +923,22 @@ view: impression_funnel_dv360 {
               # </a>;;
       }
 
+  measure: dynamic_measure_for_ranking_io_contribution_to_performance {
+    label: "Contribution to Performance"
+    hidden: yes
+    value_format_name: percent_2
+    type: number
+    sql: {% if metric_selector._parameter_value == "'Cost Per Acquisition'" %} ${contribution_to_campaign_cpa_performance}
+          {% elsif metric_selector._parameter_value == "'Cost Per Click'" %} ${contribution_to_campaign_cpc_performance}
+            {% elsif metric_selector._parameter_value == "'Click Through Rate'" %} ${contribution_to_campaign_ctr_performance}
+            {% elsif metric_selector._parameter_value == "'Cost Per 1000 Impressions'" %} ${contribution_to_campaign_cpm_performance}
+            {% elsif metric_selector._parameter_value == "'Conversion Rate'" %} ${contribution_to_campaign_cr_performance}
+            {% elsif metric_selector._parameter_value == "'Viewable Impression Rate'" %} ${percent_impressions_viewed}
+            {% elsif metric_selector._parameter_value == "'Measureable Impression Rate'" %} ${percent_impressions_measurable}
+            {% else %} null
+          {% endif %} ;;
+  }
+
       ### Campaign Benchmarking
 
   filter: campaign_input {
@@ -815,9 +950,6 @@ view: impression_funnel_dv360 {
     sql: CASE WHEN {% condition campaign_input %} ${campaign_id} {% endcondition %}
           THEN CONCAT('1. ',cast(${campaign_id} as string))
           ELSE '2. Rest of Campaigns' END;;
-    link: {
-      label: ""
-    }
   }
 
   ### Comparion vs. priod period
@@ -870,3 +1002,10 @@ view: impression_funnel_dv360 {
     ]
     }
   }
+
+view: dbm_matching_targeted_segments_array {
+  dimension: dbm_matching_targeted_segments {
+    type: string
+    sql: ${TABLE} ;;
+  }
+}

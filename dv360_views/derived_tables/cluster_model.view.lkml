@@ -1,5 +1,5 @@
 # If necessary, uncomment the line below to include explore_source.
-include: "campaign_manager.model.lkml"
+include: "/models/campaign_manager.model.lkml"
 
 view: clustering_dataset {
   derived_table: {

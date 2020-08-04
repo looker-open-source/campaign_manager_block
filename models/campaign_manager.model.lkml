@@ -128,6 +128,11 @@ explore: impression_funnel_dv360 {
     relationship: many_to_one
     sql_on: ${impression_funnel_dv360.dbm_line_item_id} = ${line_item_facts.dbm_line_item_id} ;;
   }
+
+  join: dbm_matching_targeted_segments_array {
+    sql: LEFT JOIN UNNEST(${impression_funnel_dv360.dbm_matching_targeted_segments_array}) as dbm_matching_targeted_segments_array ;;
+    relationship: one_to_many
+  }
 }
 
 explore: activity {
