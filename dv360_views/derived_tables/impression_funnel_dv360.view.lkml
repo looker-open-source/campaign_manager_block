@@ -243,7 +243,7 @@ view: impression_funnel_dv360 {
     view_label: "Event Attributes"
     label: "Event"
     type: time
-    timeframes: [raw, time, date, week, month, year]
+    timeframes: [raw, time, hour_of_day, date, day_of_week, week, month, year]
     sql:${TABLE}.event_time ;;
   }
 
