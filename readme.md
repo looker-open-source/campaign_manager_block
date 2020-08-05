@@ -39,7 +39,7 @@ Insert overview of block structure here.
 
 ### Customizations
 
-Insert overview of customizations here.
+ * (1) Within the ```Top Performers & Breakdowns``` dashboard there are three breakdown tiles that are configurable. It is recommended to import this dashboard and edit these tiles to create custom classifications based on placement name or campaign tactic. Once configured, you  can drill into these metrics to get an additional level of granularity into underlying factors.
 
 <br>
 
