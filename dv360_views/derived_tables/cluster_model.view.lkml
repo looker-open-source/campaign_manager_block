@@ -10,6 +10,7 @@ view: clustering_dataset {
   derived_table: {
     explore_source: impression_funnel_dv360 {
       column: campaign_id {}
+      column: dbm_advertiser_id {}
       column: total_clicks {}
       column: total_conversions {}
       column: total_impressions {}
