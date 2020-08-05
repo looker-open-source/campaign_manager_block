@@ -34,6 +34,12 @@ view: clustering_dataset {
   }
   dimension: campaign_id {
     view_label: "Cluster Predict"
+    link: {
+      label: "Campaign Overview Dashboard"
+      # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
+      url: "/dashboards-next/37?Campaign+ID={{ value }}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+      icon_url: "http://www.looker.com/favicon.ico"
+    }
   }
   dimension: total_clicks {
     type: number
