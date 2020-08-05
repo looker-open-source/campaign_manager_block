@@ -102,7 +102,7 @@ view: cluster_model {
       CREATE OR REPLACE MODEL
       ${SQL_TABLE_NAME} OPTIONS(model_type='kmeans') AS
       SELECT
-         * EXCEPT(campaign_id,impression_funnel_dv360_dbm_advertiser_id,row_num)
+         * EXCEPT(campaign_id,dbm_advertiser_id,row_num)
       FROM ${clustering_dataset.SQL_TABLE_NAME};;
   }
 }
@@ -139,7 +139,7 @@ view: cluster_predict {
   derived_table: {
     sql: SELECT *,ROW_NUMBER() OVER () AS row_num FROM ml.PREDICT(
           MODEL ${cluster_model.SQL_TABLE_NAME},
-          (SELECT * EXCEPT(campaign_id,impression_funnel_dv360_dbm_advertiser_id,row_num)
+          (SELECT * EXCEPT(campaign_id,dbm_advertiser_id,row_num)
             FROM ${clustering_dataset.SQL_TABLE_NAME}))
        ;;
   }
