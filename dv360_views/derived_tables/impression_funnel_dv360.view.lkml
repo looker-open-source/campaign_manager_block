@@ -492,7 +492,7 @@ view: impression_funnel_dv360 {
       icon_url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
     }
     link: {
-      label: "Campaign Overview Dashboard"
+      label: "DV360 Campaign Overview Dashboard"
       # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
       url: "/dashboards-next/37?Campaign+ID={{ dbm_insertion_order_id._value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
