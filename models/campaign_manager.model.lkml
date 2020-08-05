@@ -4,6 +4,7 @@ connection: "db-platform-sol-cm"
 # include all the views + dashboards
 include: "/**/*.view"
 include: "/dashboards/*.dashboard"
+include: "/dv360_dashboards/*.dashboard"
 
 persist_for: "24 hours"
 
