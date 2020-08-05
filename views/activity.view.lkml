@@ -203,6 +203,12 @@ view: activity {
     sql: ${TABLE}.DBM_Ad_Position ;;
   }
 
+  dimension: dbm_campaign_id {
+    view_label: "DV360"
+    type: number
+    sql: ${TABLE}.dbm_campaign_id ;;
+  }
+
   dimension: dbm_advertiser_id {
     view_label: "DV360"
     type: string

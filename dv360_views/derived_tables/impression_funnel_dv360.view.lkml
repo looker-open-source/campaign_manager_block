@@ -4,7 +4,7 @@ view: impression_pdt {
   derived_table: {
     datagroup_trigger: new_day
     sql: select TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as event_time
-            , campaign_id
+            , dbm_campaign_id as campaign_id
 
                 , dbm_advertiser_id
                 , dbm_insertion_order_id
@@ -40,7 +40,7 @@ view: click_pdt {
   derived_table: {
     datagroup_trigger: new_day
     sql: select TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as event_time
-          ,campaign_id
+          ,dbm_campaign_id as campaign_id
                       -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
                       , dbm_advertiser_id
                       , dbm_insertion_order_id
@@ -71,7 +71,7 @@ view: activity_pdt {
     datagroup_trigger: new_day
     sql: select
       TIMESTAMP_SECONDS(CAST(Event_Time/1000000 as INT64) ) as event_time
-          , campaign_id
+          , dbm_campaign_id as campaign_id
                       -- TO DO: THIS NEEDS TO CHANGE TO dbm_campaign_id
                       , dbm_advertiser_id
                       , dbm_insertion_order_id
