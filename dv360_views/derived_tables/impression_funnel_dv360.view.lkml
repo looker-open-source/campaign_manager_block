@@ -521,6 +521,23 @@ view: impression_funnel_dv360 {
 ;;
   }
 
+  dimension: cluster_dashboards {
+    view_label: "Event Attributes"
+    hidden: yes
+    sql: ${TABLE}.campaign_id ;;
+    html:
+    <html>
+<center>
+<button style="background-color: #4285F4; border: none; text-align: center; color: white; padding: 10px 25px; font-size: 12px;">
+<a style="text-decoration: none; color: white;" href="/dashboards/45?Centroid%20ID={{cluster_predict.centroid_id._value}}">
+<b>Go to Clustering Overview for<br>Selected Campaign</b></a></button>
+</center>
+</html>
+;;
+  }
+
+
+
   dimension: is_public {
     view_label: "Event Attributes"
     label: "Inventory Source Public vs Private"
@@ -1025,7 +1042,7 @@ view: impression_funnel_dv360 {
     type: string
     sql: CASE WHEN {% condition campaign_input %} ${campaign_id} {% endcondition %}
           THEN CONCAT('1. ',cast(${campaign_id} as string))
-          ELSE '2. Rest of Campaigns' END;;
+          ELSE 'Rest of Campaigns' END;;
   }
 
   ### Comparion vs. priod period

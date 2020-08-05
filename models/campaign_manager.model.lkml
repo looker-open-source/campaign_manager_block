@@ -135,6 +135,16 @@ explore: impression_funnel_dv360 {
     sql: LEFT JOIN UNNEST(${impression_funnel_dv360.dbm_matching_targeted_segments_array}) as dbm_matching_targeted_segments_array ;;
     relationship: one_to_many
   }
+  join: clustering_dataset {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${impression_funnel_dv360.campaign_id} = ${clustering_dataset.campaign_id} ;;
+  }
+  join: cluster_predict {
+    type: left_outer
+    relationship: one_to_one
+    sql_on: ${clustering_dataset.row_num} = ${cluster_predict.row_num} ;;
+  }
 }
 
 explore: activity {

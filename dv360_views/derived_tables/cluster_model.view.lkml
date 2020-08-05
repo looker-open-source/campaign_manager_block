@@ -146,6 +146,7 @@ view: cluster_predict {
     description: "What the distance is to the nearest cluster's center. In other words: how much like this 'group' is this data point? (lower is better fit)"
     type: number
     sql:  ${TABLE}.NEAREST_CENTROIDS_DISTANCE[OFFSET(0)].DISTANCE ;;
+    value_format_name: decimal_2
   }
 
   measure: average_centroid_distance {
