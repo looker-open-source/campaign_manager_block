@@ -6,6 +6,7 @@ view: dynamic_io_rank {
     explore_source: impression_funnel_dv360 {
       column: dbm_insertion_order_id { field: impression_funnel_dv360.dbm_insertion_order_id }
       # column: dynamic_measure { field: impression_funnel_dv360.dynamic_measure }
+      column: dbm_revenue {field: impression_funnel_dv360.dbm_revenue}
       column: dynamic_measure_for_ranking_io_contribution_to_performance { field: impression_funnel_dv360.dynamic_measure_for_ranking_io_contribution_to_performance }
       # derived_column: rank {
       #   sql: ROW_NUMBER() OVER(order by dynamic_measure
@@ -30,7 +31,7 @@ view: dynamic_io_rank {
                       {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Viewable Impression Rate'" %} asc
                       {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Measureable Impression Rate'" %} asc
                       {% else %} asc
-                    {% endif %}
+                    {% endif %}, dbm_revenue desc
                     ) ;;
       }
       bind_all_filters: yes
