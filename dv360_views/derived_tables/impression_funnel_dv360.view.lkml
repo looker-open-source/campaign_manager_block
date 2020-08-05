@@ -352,12 +352,14 @@ view: impression_funnel_dv360 {
           WHEN DBM_Device_Type=4 THEN "Smart TV"
           ELSE 'Unknown'
          END ;;
+    drill_fields: [dbm_browser_platform_id,dbm_operating_system_id]
   }
 
   dimension: dbm_browser_platform_id {
     view_label: "Event Attributes"
     label: "Browser Platform ID"
     type: string
+    drill_fields: [dbm_operating_system_id, DBM_Device_Type_Name]
     sql: ${TABLE}.DBM_Browser_Platform_ID ;;
   }
 
@@ -365,6 +367,7 @@ view: impression_funnel_dv360 {
     view_label: "Event Attributes"
     label: "Operating System ID"
     type: string
+    drill_fields: [DBM_Device_Type_Name,dbm_browser_platform_id]
     sql: ${TABLE}.dbm_operating_system_id ;;
   }
 
@@ -372,6 +375,7 @@ view: impression_funnel_dv360 {
     view_label: "Event Attributes"
     label: "Site ID"
     type: string
+    drill_fields: [dbm_exchange_id]
     sql: ${TABLE}.dbm_site_id ;;
   }
 
@@ -379,6 +383,7 @@ view: impression_funnel_dv360 {
     view_label: "Event Attributes"
     label: "Exchange ID"
     type: string
+    drill_fields: [is_public,dbm_site_id]
     sql: ${TABLE}.dbm_exchange_id ;;
   }
 
@@ -386,6 +391,7 @@ view: impression_funnel_dv360 {
     view_label: "Event Attributes"
     label: "Auction ID"
     type: string
+    drill_fields: [is_public,dbm_exchange_id,dbm_site_id]
     sql: ${TABLE}.dbm_auction_id ;;
   }
 
@@ -1190,6 +1196,7 @@ view: dbm_matching_targeted_segments_array {
     label: "Targeted Segment ID"
     description: "The ID of targeted user lists that match the visitor"
     type: string
+    drill_fields: [impression_funnel_dv360.dbm_insertion_order_id]
     sql: ${TABLE} ;;
   }
 }
