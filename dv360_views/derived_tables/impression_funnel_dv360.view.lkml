@@ -518,7 +518,7 @@ view: impression_funnel_dv360 {
     sql: CAST(${TABLE}.DBM_Insertion_Order_ID as string) ;;
     link: {
       label: "IO Lookup Dashboard"
-      url: "/dashboards-next/38?Insertion%20Order={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+      url: "/dashboards-next/campaign_manager::io_lookup?Insertion%20Order={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
@@ -537,7 +537,7 @@ view: impression_funnel_dv360 {
     link: {
       label: "IO Lookup Dashboard"
       # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
-      url: "/dashboards-next/38?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+      url: "/dashboards-next/campaign_manager::io_lookup?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
@@ -554,7 +554,7 @@ view: impression_funnel_dv360 {
     sql: ${TABLE}.DBM_Line_Item_ID ;;
     link: {
       label: "Line Item Lookup Dashboard"
-       url: "/dashboards-next/46?Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}&Line+Item+ID={{ dbm_line_item_id._value | encode_uri }}"
+       url: "/dashboards-next/campaign_manager::line_item_lookup?Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}&Line+Item+ID={{ dbm_line_item_id._value | encode_uri }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
@@ -584,7 +584,7 @@ view: impression_funnel_dv360 {
     link: {
       label: "DV360 Campaign Overview Dashboard"
       # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
-      url: "/dashboards-next/37?Campaign+ID={{ value }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}"
+      url: "/dashboards-next/campaign_manager::campaign_overview__dv360?Campaign+ID={{ value }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
 
@@ -626,7 +626,7 @@ view: impression_funnel_dv360 {
     <html>
 <center>
 <button style="background-color: #4285F4; border: none; text-align: center; color: white; padding: 10px 25px; font-size: 12px;">
-<a style="text-decoration: none; color: white;" href="/dashboards-next/45?Centroid%20ID={{cluster_predict.centroid_id._value}}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}">
+<a style="text-decoration: none; color: white;" href="/dashboards-next/campaign_manager::cluster_lookup?Centroid%20ID={{cluster_predict.centroid_id._value}}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}">
 <b>Go to Clustering Overview for<br>Selected Campaign</b></a></button>
 </center>
 </html>

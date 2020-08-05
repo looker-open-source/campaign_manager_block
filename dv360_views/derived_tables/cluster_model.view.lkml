@@ -8,6 +8,7 @@ datagroup: bqml_datagroup {
 
 view: clustering_dataset {
   derived_table: {
+    datagroup_trigger: bqml_datagroup
     explore_source: impression_funnel_dv360 {
       column: campaign_id {}
       column: dbm_advertiser_id {}
@@ -38,7 +39,7 @@ view: clustering_dataset {
     link: {
       label: "Campaign Overview Dashboard"
       # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
-      url: "/dashboards-next/37?Campaign+ID={{ value }}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+      url: "/dashboards-next/campaign_manager::campaign_overview__dv360?Campaign+ID={{ value }}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
   }
@@ -169,7 +170,7 @@ view: cluster_predict {
     drill_fields: [clustering_dataset.campaign_id]
     link: {
       label: "Focus on this Centroid"
-      url: "/dashboards-next/45?Centroid+ID={{value}}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+      url: "/dashboards-next/campaign_manager::cluster_lookup?Centroid+ID={{value}}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
     }
   }
 
