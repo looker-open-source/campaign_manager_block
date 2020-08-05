@@ -153,6 +153,7 @@ view: cluster_predict {
     description: "How close are these data points to their nearest clusters' centers. In other words: How well do these data points fit into their respective 'groups'? (lower is better fit) "
     type: average
     sql: ${centroid_distance} ;;
+    value_format_name: decimal_2
   }
   dimension: total_clicks {
     type: number
