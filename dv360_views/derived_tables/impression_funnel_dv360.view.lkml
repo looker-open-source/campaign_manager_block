@@ -541,11 +541,11 @@ view: impression_funnel_dv360 {
   dimension: dbm_line_item_id {
     view_label: "Event Attributes"
     label: "Line Item ID"
-    type: string
+    type: number
     sql: ${TABLE}.DBM_Line_Item_ID ;;
     link: {
       label: "Line Item Lookup Dashboard"
-       url: "/dashboards-next/41?Line+Item+ID={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+       url: "/dashboards-next/46?Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}&Line+Item+ID={{ dbm_line_item_id._value | encode_uri }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
     link: {
