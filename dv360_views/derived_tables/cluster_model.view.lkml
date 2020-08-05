@@ -167,6 +167,10 @@ view: cluster_predict {
     type: number
     sql: ${TABLE}.centroid_id ;;
     drill_fields: [clustering_dataset.campaign_id]
+    link: {
+      label: "Focus on this Centroid"
+      url: "/dashboards-next/45?Centroid+ID={{value}}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+    }
   }
 
   dimension: centroid_distance {

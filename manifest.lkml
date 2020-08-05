@@ -6,7 +6,10 @@ constant: cm_network_id {
   value: ""
 }
 
+### DV360 Constants
+
 constant: dv360_partner_id {
+  ## This is used for links
   value: ""
 }
 
