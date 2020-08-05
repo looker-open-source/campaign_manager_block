@@ -169,21 +169,25 @@ view: activity {
   measure: count {
     type: count
     drill_fields: [match_table_campaigns.campaign_name, count]
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: distinct_users {
     type: count_distinct
     sql: ${user_id} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: total_conversions {
     type: sum
     sql: ${TABLE}.Total_Conversions ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: total_revenue {
     type: sum
     sql: ${TABLE}.Total_Revenue ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
 
