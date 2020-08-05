@@ -36,7 +36,7 @@ view: dynamic_io_rank {
       }
       bind_all_filters: yes
       filters: [
-        io_facts.dbm_revenue: ">0"
+        io_facts.dbm_revenue: ">0", io_facts.dynamic_filter: ">0"
       ]
     }
   }
@@ -128,7 +128,7 @@ view: io_facts {
     type: number
   }
   measure: dbm_revenue {
-    hidden: yes
+#     hidden: yes
     type: sum
   }
   measure: total_impressions {
@@ -143,6 +143,40 @@ view: io_facts {
     hidden: yes
     type: sum
   }
+
+  dimension: dbm_revenue_d {
+#     hidden: yes
+    type: number
+    sql: ${TABLE}.dbm_revenue ;;
+  }
+  dimension: total_impressions_d {
+#     hidden: yes
+    type: number
+    sql: ${TABLE}.total_impressions ;;
+  }
+  dimension: total_clicks_d {
+#     hidden: yes
+    type: number
+    sql: ${TABLE}.total_clicks ;;
+  }
+  dimension: total_conversions_d {
+#     hidden: yes
+    type: number
+    sql: ${TABLE}.total_conversions ;;
+  }
+
+  dimension: dynamic_filter {
+#     hidden: yes
+    type: number
+    sql: {% if impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per Acquisition'" %} ${total_conversions_d}
+                    {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per Click'" %} ${total_clicks_d}
+                      {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Click Through Rate'" %} ${total_clicks_d}
+                      {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Cost Per 1000 Impressions'" %} ${total_impressions_d}
+                      {% elsif impression_funnel_dv360.metric_selector._parameter_value == "'Conversion Rate'" %} ${total_conversions_d}
+
+                      {% else %}1{%endif%} ;;
+  }
+
 }
 
 # If necessary, uncomment the line below to include explore_source.

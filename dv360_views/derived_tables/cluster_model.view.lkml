@@ -25,11 +25,11 @@ view: clustering_dataset {
       }
       filters: {
         field: impression_funnel_dv360.dbm_revenue
-        value: ">= .01"
+        value: "@{minimum_spend_cluster}"
       }
       filters: {
         field: impression_funnel_dv360.total_conversions
-        value: "not 0"
+        value: "@{minimum_conversions_cluster}"
       }
     }
   }
@@ -100,7 +100,7 @@ view: cluster_model {
     datagroup_trigger: bqml_datagroup
     sql_create:
       CREATE OR REPLACE MODEL
-      ${SQL_TABLE_NAME} OPTIONS(model_type='kmeans') AS
+      ${SQL_TABLE_NAME} OPTIONS(model_type='kmeans',num_clusters=@{number_of_clusters}) AS
       SELECT
          * EXCEPT(campaign_id,dbm_advertiser_id,row_num)
       FROM ${clustering_dataset.SQL_TABLE_NAME};;
@@ -143,10 +143,30 @@ view: cluster_predict {
             FROM ${clustering_dataset.SQL_TABLE_NAME}))
        ;;
   }
+
+  filter: centroid_input {
+    type: number
+  }
+
+  dimension: centroid_comparison {
+    description: "Use with the Centroid Input to compare a cluster to others"
+    type: string
+    sql: CASE WHEN {% condition centroid_input %} ${centroid_id} {% endcondition %}
+    THEN CONCAT('1. Cluster ',CAST(${centroid_id} as string))
+    else '2. Rest of Clusters' END;;
+  }
+
+  dimension: is_selected_centroid {
+    type: yesno
+    sql: {% condition centroid_input %} ${centroid_id} {% endcondition %} ;;
+  }
+
+
   dimension: centroid_id {
     description: "Which cluster this data point is closest to. In other words: to which 'group' does this data point belong?"
     type: number
     sql: ${TABLE}.centroid_id ;;
+    drill_fields: [clustering_dataset.campaign_id]
   }
 
   dimension: centroid_distance {

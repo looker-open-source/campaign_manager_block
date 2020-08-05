@@ -513,8 +513,9 @@ view: impression_funnel_dv360 {
   dimension: dbm_insertion_order_id {
     view_label: "Event Attributes"
     label: "Insertion Order ID"
-    type: number
-    sql: ${TABLE}.DBM_Insertion_Order_ID ;;
+    type: string
+    value_format_name: id
+    sql: CAST(${TABLE}.DBM_Insertion_Order_ID as string) ;;
     link: {
       label: "IO Lookup Dashboard"
       url: "/dashboards-next/38?Insertion%20Order={{ value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
@@ -576,8 +577,9 @@ view: impression_funnel_dv360 {
     view_label: "Event Attributes"
     label: "Campaign ID"
     link: {
-      url: "Link to DV360 for Campaign {{value}}"
-      icon_url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
+      label: "Link to DV360 for Campaign {{value}}"
+      url: "https://displayvideo.google.com/#ng_nav/p/@{dv360_partner_id}/a/{{dbm_advertiser_id._value}}/c/{{value}}/explorer?"
+      icon_url: "https://www.searchlaboratory.com/wp-content/uploads/2019/02/DV360-1.png"
     }
     link: {
       label: "DV360 Campaign Overview Dashboard"
@@ -624,7 +626,7 @@ view: impression_funnel_dv360 {
     <html>
 <center>
 <button style="background-color: #4285F4; border: none; text-align: center; color: white; padding: 10px 25px; font-size: 12px;">
-<a style="text-decoration: none; color: white;" href="/dashboards/45?Centroid%20ID={{cluster_predict.centroid_id._value}}">
+<a style="text-decoration: none; color: white;" href="/dashboards-next/45?Centroid%20ID={{cluster_predict.centroid_id._value}}">
 <b>Go to Clustering Overview for<br>Selected Campaign</b></a></button>
 </center>
 </html>
@@ -1126,6 +1128,25 @@ view: impression_funnel_dv360 {
             {% else %} null
           {% endif %} ;;
   }
+
+  measure: dynamic_measure_io_contribution_to_performance {
+    label: "Dynamic Contribution to IO Performance"
+    description: "Use this as your measure when utilizing the Metric Selector parameter"
+    view_label: "Performance Metrics"
+    # hidden: yes
+    value_format_name: percent_2
+    type: number
+    sql: {% if metric_selector._parameter_value == "'Cost Per Acquisition'" %} ${contribution_to_io_cpa_performance}
+          {% elsif metric_selector._parameter_value == "'Cost Per Click'" %} ${contribution_to_io_cpc_performance}
+            {% elsif metric_selector._parameter_value == "'Click Through Rate'" %} ${contribution_to_io_ctr_performance}
+            {% elsif metric_selector._parameter_value == "'Cost Per 1000 Impressions'" %} ${contribution_to_io_cpm_performance}
+            {% elsif metric_selector._parameter_value == "'Conversion Rate'" %} ${contribution_to_io_cr_performance}
+            {% elsif metric_selector._parameter_value == "'Viewable Impression Rate'" %} ${percent_impressions_viewed}
+            {% elsif metric_selector._parameter_value == "'Measureable Impression Rate'" %} ${percent_impressions_measurable}
+            {% else %} null
+          {% endif %} ;;
+  }
+
 
 
 
