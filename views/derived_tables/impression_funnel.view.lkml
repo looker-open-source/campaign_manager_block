@@ -220,36 +220,43 @@ view: impression_funnel {
   measure: total_impressions {
     type: sum
     sql: ${count_impressions} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: total_clicks {
     type: sum
     sql: ${count_clicks} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: total_conversions {
     type: sum
     sql: ${count_conversions} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: total_post_view_conversions {
     type: sum
     sql: ${count_postview_conversions} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: total_post_click_conversions {
     type: sum
     sql: ${count_postclick_conversions} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: count_users {
     type: count_distinct
     sql: ${user_id} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: count_users_who_clicked {
     type: count_distinct
     sql: ${user_id} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
 
     filters: {
       field: first_ad_click_date
@@ -260,6 +267,7 @@ view: impression_funnel {
   measure: count_users_converted {
     type: count_distinct
     sql: ${user_id} ;;
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
 
     filters: {
       field: first_ad_activity_date

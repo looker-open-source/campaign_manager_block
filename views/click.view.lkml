@@ -130,6 +130,7 @@ view: click {
   measure: count {
     type: count
     drill_fields: [match_table_campaigns.campaign_name, count]
+    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
 
