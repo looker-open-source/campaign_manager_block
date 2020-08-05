@@ -626,7 +626,7 @@ view: impression_funnel_dv360 {
     <html>
 <center>
 <button style="background-color: #4285F4; border: none; text-align: center; color: white; padding: 10px 25px; font-size: 12px;">
-<a style="text-decoration: none; color: white;" href="/dashboards-next/45?Centroid%20ID={{cluster_predict.centroid_id._value}}">
+<a style="text-decoration: none; color: white;" href="/dashboards-next/45?Centroid%20ID={{cluster_predict.centroid_id._value}}&Performance%20Metric={{ _filters['impression_funnel_dv360.metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}">
 <b>Go to Clustering Overview for<br>Selected Campaign</b></a></button>
 </center>
 </html>
@@ -1181,7 +1181,8 @@ view: impression_funnel_dv360 {
     type: string
     sql: CASE WHEN {% condition campaign_input %} ${campaign_id} {% endcondition %}
           THEN CONCAT('1. ',cast(${campaign_id} as string))
-          ELSE 'Rest of Campaigns' END;;
+          WHEN ${cluster_predict.centroid_id} = (SELECT centroid_id from ${cluster_predict.SQL_TABLE_NAME} cp inner join ${clustering_dataset.SQL_TABLE_NAME} cd on cp.row_num=cd.row_num where {% condition campaign_input %} cd.campaign_id {% endcondition %})
+          THEN '2. Rest of Cluster' ELSE '3. Rest of Campaigns' END;;
   }
 
   ### Comparion vs. priod period
