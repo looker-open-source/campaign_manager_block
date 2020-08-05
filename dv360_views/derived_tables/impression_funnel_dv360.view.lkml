@@ -239,6 +239,86 @@ view: impression_funnel_dv360 {
     sql: ${TABLE}.primary_key ;;
   }
 
+  parameter: comparison_type {
+    label: "Date Range"
+    view_label: "Date Comparison"
+    type: unquoted
+    allowed_value: {
+      label: "Last 7 Days"
+      value: "seven"
+    }
+    allowed_value: {
+      label: "Last 14 Days"
+      value: "fourteen"
+    }
+    allowed_value: {
+      label: "Last 30 Days"
+      value: "thirty"
+    }
+    default_value: "seven"
+  }
+
+  dimension: selected_comparison {
+    view_label: "Date Comparison"
+    sql: {% if comparison_type._parameter_value == "seven" %}
+          ${last_7_days_vs_previous_7_days}
+          {% elsif comparison_type._parameter_value == "fourteen" %}
+          ${last_14_days_vs_previous_14_days}
+          {% elsif comparison_type._parameter_value == "thirty" %}
+          ${last_30_days_vs_previous_30_days}
+          {% else %}
+          0
+          {% endif %};;
+  }
+
+  dimension: no_comparison {
+    view_label: "Date Comparison"
+    type: yesno
+    sql: ${selected_comparison} LIKE '%Last%'  ;;
+  }
+
+
+  dimension: last_7_days_vs_previous_7_days {
+    view_label: "Date Comparison"
+    type: string
+    sql: CASE
+        WHEN (( ${impression_raw} >= (TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -6 DAY))) AND ${impression_raw} < (TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -6 DAY), INTERVAL 7 DAY)))
+        THEN 'Last 7 Days'
+
+        WHEN (( ${impression_raw} >= (TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -13 DAY))) AND ${impression_raw} < (TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -13 DAY), INTERVAL 7 DAY)))
+        THEN 'Prior 7 Days'
+      END
+      ;;
+  }
+
+
+  dimension: last_14_days_vs_previous_14_days {
+    view_label: "Date Comparison"
+    type: string
+    sql: CASE
+        WHEN (( ${impression_raw} >= (TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -13 DAY))) AND ${impression_raw} < (TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -13 DAY), INTERVAL 14 DAY)))
+        THEN 'Last 14 Days'
+
+        WHEN (( ${impression_raw} >= (TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -27 DAY))) AND ${impression_raw} < (TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -27 DAY), INTERVAL 14 DAY)))
+        THEN 'Prior 14 Days'
+      END
+      ;;
+  }
+
+
+  dimension: last_30_days_vs_previous_30_days {
+    view_label: "Date Comparison"
+    type: string
+    sql: CASE
+        WHEN (( ${impression_raw} >= (TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -29 DAY))) AND ${impression_raw} < (TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -29 DAY), INTERVAL 30 DAY)))
+        THEN 'Last 30 Days'
+
+        WHEN (( ${impression_raw} >= (TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -59 DAY))) AND ${impression_raw} < (TIMESTAMP_ADD(TIMESTAMP_ADD(TIMESTAMP_TRUNC(CURRENT_TIMESTAMP(), DAY), INTERVAL -59 DAY), INTERVAL 30 DAY)))
+        THEN 'Prior 30 Days'
+      END
+      ;;
+  }
+
   dimension_group: impression {
     view_label: "Event Attributes"
     label: "Event"
@@ -494,7 +574,7 @@ view: impression_funnel_dv360 {
     link: {
       label: "DV360 Campaign Overview Dashboard"
       # url: "/dashboards/20?Insertion%20Order={{ dbm_insertion_order_id._value | encode_uri }}"
-      url: "/dashboards-next/37?Campaign+ID={{ dbm_insertion_order_id._value | encode_uri }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}&Impression%20Date={{ _filters['impression_funnel_dv360.impression_date'] | url_encode }}"
+      url: "/dashboards-next/37?Campaign+ID={{ value }}&Performance%20Metric={{ _filters['metric_selector'] | url_encode }}"
       icon_url: "http://www.looker.com/favicon.ico"
     }
 
