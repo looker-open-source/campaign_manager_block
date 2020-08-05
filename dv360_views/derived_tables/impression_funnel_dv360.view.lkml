@@ -1,3 +1,5 @@
+
+
 view: impression_pdt {
   derived_table: {
     datagroup_trigger: new_day
@@ -26,7 +28,7 @@ view: impression_pdt {
                 ,sum(active_view_measurable_impressions) as active_view_measurable_impressions
                 ,sum(active_view_eligible_impressions) as active_view_eligible_impression
             from ${impression.SQL_TABLE_NAME}
-            where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
+            where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -@{historical_data_dv360} DAY))
             and dbm_advertiser_id is not null
 
             group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
@@ -56,7 +58,7 @@ view: click_pdt {
                      , IFNULL(dbm_operating_system_id,'Unknown') as dbm_operating_system_id
                       , count(*) as count_clicks
                   from ${click.SQL_TABLE_NAME}
-                  where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
+                  where _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -@{historical_data_dv360} DAY))
                   and dbm_advertiser_id is not null
 
                   group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
@@ -89,7 +91,7 @@ view: activity_pdt {
                       from ${activity.SQL_TABLE_NAME}
 
                       where event_type = 'CONVERSION'
-                    and _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -60 DAY))
+                    and _PARTITIONTIME > TIMESTAMP(DATE_ADD(CURRENT_DATE, INTERVAL -@{historical_data_dv360} DAY))
                     and dbm_advertiser_id is not null
 
                       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
@@ -558,7 +560,7 @@ view: impression_funnel_dv360 {
   dimension: dbm_designated_market_area_dma_id {
     view_label: "Event Attributes"
     label: "DMA ID"
-    type: number
+    type: string
     map_layer_name: dma
     sql: ${TABLE}.DBM_Designated_Market_Area_DMA_ID ;;
     drill_fields: [dbm_zip_postal_code]
@@ -1102,8 +1104,10 @@ view: impression_funnel_dv360 {
       }
 
   measure: dynamic_measure_for_ranking_io_contribution_to_performance {
-    label: "Contribution to Performance"
-    hidden: yes
+    label: "Dynamic Contribution to Campaign Performance"
+    description: "Use this as your measure when utilizing the Metric Selector parameter"
+    view_label: "Performance Metrics"
+    # hidden: yes
     value_format_name: percent_2
     type: number
     sql: {% if metric_selector._parameter_value == "'Cost Per Acquisition'" %} ${contribution_to_campaign_cpa_performance}
@@ -1117,6 +1121,10 @@ view: impression_funnel_dv360 {
           {% endif %} ;;
   }
 
+
+
+
+
       ### Campaign Benchmarking
 
   filter: campaign_input {
@@ -1124,6 +1132,23 @@ view: impression_funnel_dv360 {
     type: string
     suggest_dimension: campaign_id
   }
+
+  filter: io_input {
+    view_label: "Event Attributes"
+    type: string
+    suggest_dimension: dbm_insertion_order_id
+  }
+
+  dimension: is_io {
+    type: yesno
+    sql: {% condition io_input %} ${dbm_insertion_order_id} {% endcondition %} ;;
+  }
+
+  dimension: is_same_campaign {
+    type: yesno
+    sql: ${campaign_id} = (SELECT max(campaign_id) from ${impression_funnel_dv360.SQL_TABLE_NAME} where {% condition io_input %} ${dbm_insertion_order_id} {% endcondition %}) ;;
+  }
+
   dimension: campaign_comparison {
     view_label: "Event Attributes"
     type: string
