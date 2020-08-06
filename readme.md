@@ -25,6 +25,10 @@ It is strongly recommended that you load all match tables into your warehouse to
 
 ### DV360 Data Structure and Schema
 
+Note: if you are interested in using the DV360 Block, please contact maxwellreid@google.com, zevl@google.com, and annajenkins@google.com
+
+DV360 data is exported through Transfer Services in the format of three flat tables (a single file for impressions, clicks, and activities). All Data Transfer Files are stored as comma separated values (CSV). The only difference to Campaign Manager is that all fields prefixed with dbm_ are DV360 fields, populated only for impressions/clicks/conversions served through DV360.
+
 Please Note: Version 1 of this block was released without references to DV360-specific match-files because they are not available from DTS. In order to incorporate data from match files, including campaign metadata, inventory look-up tables, etc., please work with your GMP and Looker account teams. We are investigating options for getting DV360 match files into BQ in a consistent format and will release an updated version of the block when we do.
 
 Some visualizations in the DV360 dashboards are dependent on Contribution To Performance. This metric is determined by calculating the KPI selected under Metric Selector if the attibute you're looking at (IO, Exchange, Site, etc.) was never included in the campaign, insertion order, or line item. The percent change between the actual KPI value and the KPI value without that attribute is then calculated to determine the increase or decrease in performance that attribute is resposible.
@@ -39,10 +43,29 @@ Insert overview of block structure here.
 
 ### Customizations
 
+#### Campaign Manager
  * (1) Within the ```Top Performers & Breakdowns``` dashboard there are three breakdown tiles that are configurable. It is recommended to import this dashboard and edit these tiles to create custom classifications based on placement name or campaign tactic. Once configured, you  can drill into these metrics to get an additional level of granularity into underlying factors.
+
+#### DV360
+ * You can update the constants in the manifest file to change the size of the data (default is last 60 days), as well as change the criteria for campaigns to be included in the clustering model (see section below)
 
 <br>
 
+### BQML
+**What is BQML?**
+BigQuery ML enables data scientists and data analysts to build and operationalize ML models on planet-scale structured or semi-structured data, directly inside BigQuery, using simple SQL—in a fraction of the time.
+**What is Clustering?**
+Clustering is a machine-learning technique that groups together datapoints into clusters such that the datapoints within any one cluster are more similar to one another than they are to datapoints in any other cluster. For more information on clustering, please see this [article](https://www.geeksforgeeks.org/clustering-in-machine-learning/)
+
+**Overview of our cluster model**
+For our block, we are using a k-means clustering model within BQML to group together campaigns based on the campaign spend as well as the number of impressions, clicks, and conversion
+**How to modify the cluster model**
+The variables included in the model are defined within the clustering dataset native derived tables. To remove any of the included variables, just delete that column from the native derived table. To include any additional variables, just add that column or derived column to the native derived tables definition. For more information on declaring columns in a native derived table, please see this [page](https://docs.looker.com/data-modeling/learning-lookml/creating-ndts#defining_ndt_columns/)
+To change the number of clusters, change the constant in the manifest file.
+**Output of Model**
+After the model successfully completes, each campaign will be assigned to the cluster, or centroid, that it belongs to. This cluster will then be available as a dimension, so we can identify the cluster that performs best and use it to filter down other dashboards and reports to gain insight into the trends that made those campaigns successful.
+
+
 ### What if I find an error? Suggestions for improvements?
 
-Great! Blocks were designed for continuous improvement through the help of the entire Looker community and we'd love your input. To report an error or improvement recommendation, please reach out to Looker support via email to support@looker.com or via chat to submit a request. Please be as detailed as possible in your explanation and we'll address it as quick as we can.
+Great! Blocks were designed for continuous improvement through the help of the entire Looker community and we'd love your input. To report an error or improvement recommendation, please reach out to Looker support via email to support@looker.com or via chat to submit a request. Please be as detailed as possible in your explanation and we'll address it as quickly as we can.
