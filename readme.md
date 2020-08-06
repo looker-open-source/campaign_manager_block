@@ -33,14 +33,6 @@ Please Note: Version 1 of this block was released without references to DV360-sp
 
 Some visualizations in the DV360 dashboards are dependent on Contribution To Performance. This metric is determined by calculating the KPI selected under Metric Selector if the attibute you're looking at (IO, Exchange, Site, etc.) was never included in the campaign, insertion order, or line item. The percent change between the actual KPI value and the KPI value without that attribute is then calculated to determine the increase or decrease in performance that attribute is resposible.
 
-<br>
-
-### Campaign Manager Block Structure
-
-Insert overview of block structure here.
-
-<br>
-
 ### Customizations
 
 #### Campaign Manager
