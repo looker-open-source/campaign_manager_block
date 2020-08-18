@@ -851,7 +851,7 @@
     point_style: none
     show_value_labels: false
     label_density: 25
-    x_axis_scale: ordinal
+    x_axis_scale: auto
     y_axis_combined: false
     show_null_points: true
     interpolation: linear
