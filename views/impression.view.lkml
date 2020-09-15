@@ -173,13 +173,14 @@ view: impression {
   measure: count_impressions {
     type: count_distinct
     sql: ${pk} ;;
-    drill_fields: [campaign_id, site_id_dcm]
+    drill_fields: [match_table_campaigns.campaign_name, count_impressions]
     value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
   measure: active_view_measurable_impressions {
     type: sum
     sql: ${TABLE}.Active_View_Measurable_Impressions ;;
+    drill_fields: [match_table_campaigns.campaign_name, active_view_measurable_impressions]
     value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
@@ -199,7 +200,7 @@ view: impression {
     label: "Reach Count"
     type: count_distinct
     sql: ${user_id} ;;
-    drill_fields: [match_table_campaigns.campaign_name, site_id_dcm, impressions_per_user]
+    drill_fields: [match_table_campaigns.campaign_name, distinct_users, impressions_per_user]
     value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
   }
 
@@ -212,6 +213,7 @@ view: impression {
   measure: average_frequency {
     type: number
     sql: 1.0*${count}/${distinct_users} ;;
+    drill_fields: [match_table_campaigns.campaign_name, average_frequency]
     value_format_name: decimal_2
   }
 
@@ -219,14 +221,14 @@ view: impression {
     type: count_distinct
     sql: ${campaign_id} ;;
     drill_fields: [match_table_campaigns.campaign_name, count, distinct_users, impressions_per_user]
-    value_format:"[<1000]0.00;[<1000000]0.00,\" K\";0.00,,\" M\""
+    value_format_name: decimal_0
   }
 
   measure: impressions_per_user {
     type: number
     sql: ${count_impressions}/NULLIF(${distinct_users},0) ;;
     value_format_name: decimal_1
-    drill_fields: [match_table_campaigns.campaign_name, site_id_dcm]
+    drill_fields: [match_table_campaigns.campaign_name, impressions_per_user]
   }
 
   measure: ad_count {
